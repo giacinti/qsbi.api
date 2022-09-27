@@ -1,1 +1,1 @@
-sqlalchemy backend for qsbi - default driver aiosqlite
+API module for QSBI
