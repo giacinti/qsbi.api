@@ -207,19 +207,6 @@ tomli = ">=1.0.0"
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
 
 [[package]]
-name = "qsbi-crud"
-version = "0.1.0"
-description = "abstract CRUD module between API & backend"
-category = "main"
-optional = false
-python-versions = "^3.9"
-develop = true
-
-[package.source]
-type = "directory"
-url = "../qsbi.crud"
-
-[[package]]
 name = "setuptools"
 version = "65.4.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -289,7 +276,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e0263d2d1aa24a71c8010b10e2f8f51330e867ca1ae69ed543c87d393e0644ce"
+content-hash = "1333ca4a389b19433bab4764ad66e3cd18afd05d21f61962fc68fa952ec4875b"
 
 [metadata.files]
 anyio = [
@@ -432,7 +419,6 @@ pytest = [
     {file = "pytest-7.1.3-py3-none-any.whl", hash = "sha256:1377bda3466d70b55e3f5cecfa55bb7cfcf219c7964629b967c37cf0bda818b7"},
     {file = "pytest-7.1.3.tar.gz", hash = "sha256:4f365fec2dff9c1162f834d9f18af1ba13062db0c708bf7b946f8a5c76180c39"},
 ]
-qsbi-crud = []
 setuptools = [
     {file = "setuptools-65.4.0-py3-none-any.whl", hash = "sha256:c2d2709550f15aab6c9110196ea312f468f41cd546bceb24127a1be6fdcaeeb1"},
     {file = "setuptools-65.4.0.tar.gz", hash = "sha256:a8f6e213b4b0661f590ccf40de95d28a177cd747d098624ad3f69c40287297e9"},

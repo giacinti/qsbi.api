@@ -1,77 +1,77 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.category
-import qsbi.crud
+import qsbi.api.schemas.category as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.category.Category)
+@router.post("/", status_code=201, response_model=schema.Category)
 def create_category(
         *,
-        category_in: qsbi.api.schemas.category.CategoryCreate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.category.Category:
+        category_in: schema.CategoryCreate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.Category:
     """
     create a new category
     """
-    category = qsbi.crud.category.create(sess, category_in)
+    category = crud.category.create(sess, category_in)
     return category
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.category.CategorySeq)
+@router.get("/list", status_code=200, response_model=schema.CategorySeq)
 def list_categorys(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.category.CategorySeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.CategorySeq:
     """
     list all categorys
     """
-    categorys = qsbi.crud.category.list(sess, skip, limit)
+    categorys = crud.category.list(sess, skip, limit)
     return {"results": categorys}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.category.CategorySeq)
+@router.post("/search", status_code=200, response_model=schema.CategorySeq)
 def search_categorys(
         *,
-        category_in: qsbi.api.schemas.category.CategoryRead,
+        category_in: schema.CategoryRead,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.category.CategorySeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.CategorySeq:
     """
     search categorys
     """
-    categorys = qsbi.crud.category.search(sess, category_in, limit)
+    categorys = crud.category.search(sess, category_in, limit)
     return {"results": categorys}
 
-@router.get("/id/{id}", status_code=200, response_model=qsbi.api.schemas.category.Category)
+@router.get("/id/{id}", status_code=200, response_model=schema.Category)
 def get_category_by_id(
         *,
         id: int,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.category.Category]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Category]:
     """
     get category by id
     """
-    result = qsbi.crud.category.get_by(sess, 'id', id)
+    result = crud.category.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category with id {id} not found"
         )
     return result
   
-@router.get("/name/{name}", status_code=200, response_model=qsbi.api.schemas.category.Category)
+@router.get("/name/{name}", status_code=200, response_model=schema.Category)
 def get_category_by_name(
         *,
         name: str,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.category.Category]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Category]:
     """
     get category by name
     """
-    result = qsbi.crud.category.get_by(sess, 'name', name)
+    result = crud.category.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category with name {name} not found"
@@ -81,16 +81,16 @@ def get_category_by_name(
 
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.category.Category)
+@router.put("/", status_code=201, response_model=schema.Category)
 def update_category(
         *,
-        category_in: qsbi.api.schemas.category.CategoryUpdate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.category.Category]:
+        category_in: schema.CategoryUpdate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Category]:
     """
     update existing category
     """
-    result = qsbi.crud.category.update(sess, category_in)
+    result = crud.category.update(sess, category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category {category_in} not found"
@@ -98,16 +98,16 @@ def update_category(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.category.CategoryDict)
+@router.delete("/", status_code=200, response_model=schema.CategoryDict)
 def delete_category(
         *,
-        category_in: qsbi.api.schemas.category.CategoryDelete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        category_in: schema.CategoryDelete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one category
     """
-    result = qsbi.crud.category.delete(sess, category_in)
+    result = crud.category.delete(sess, category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category {category_in} not found"

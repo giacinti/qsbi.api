@@ -1,61 +1,61 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.transact
-import qsbi.crud
+import qsbi.api.schemas.transact as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.transact.Transact)
+@router.post("/", status_code=201, response_model=schema.Transact)
 def create_transact(
         *,
-        transact_in: qsbi.api.schemas.transact.TransactCreate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.transact.Transact:
+        transact_in: schema.TransactCreate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.Transact:
     """
     create a new transact
     """
-    transact = qsbi.crud.transact.create(sess, transact_in)
+    transact = crud.transact.create(sess, transact_in)
     return transact
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.transact.TransactSeq)
+@router.get("/list", status_code=200, response_model=schema.TransactSeq)
 def list_transacts(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.transact.TransactSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.TransactSeq:
     """
     list all transacts
     """
-    transacts = qsbi.crud.transact.list(sess, skip, limit)
+    transacts = crud.transact.list(sess, skip, limit)
     return {"results": transacts}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.transact.TransactSeq)
+@router.post("/search", status_code=200, response_model=schema.TransactSeq)
 def search_transacts(
         *,
-        transact_in: qsbi.api.schemas.transact.TransactRead,
+        transact_in: schema.TransactRead,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.transact.TransactSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.TransactSeq:
     """
     search transacts
     """
-    transacts = qsbi.crud.transact.search(sess, transact_in, limit)
+    transacts = crud.transact.search(sess, transact_in, limit)
     return {"results": transacts}
 
-@router.get("/id/{id}", status_code=200, response_model=qsbi.api.schemas.transact.Transact)
+@router.get("/id/{id}", status_code=200, response_model=schema.Transact)
 def get_transact_by_id(
         *,
         id: int,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.transact.Transact]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Transact]:
     """
     get transact by id
     """
-    result = qsbi.crud.transact.get_by(sess, 'id', id)
+    result = crud.transact.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact with id {id} not found"
@@ -65,16 +65,16 @@ def get_transact_by_id(
 
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.transact.Transact)
+@router.put("/", status_code=201, response_model=schema.Transact)
 def update_transact(
         *,
-        transact_in: qsbi.api.schemas.transact.TransactUpdate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.transact.Transact]:
+        transact_in: schema.TransactUpdate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Transact]:
     """
     update existing transact
     """
-    result = qsbi.crud.transact.update(sess, transact_in)
+    result = crud.transact.update(sess, transact_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact {transact_in} not found"
@@ -82,16 +82,16 @@ def update_transact(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.transact.TransactDict)
+@router.delete("/", status_code=200, response_model=schema.TransactDict)
 def delete_transact(
         *,
-        transact_in: qsbi.api.schemas.transact.TransactDelete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        transact_in: schema.TransactDelete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one transact
     """
-    result = qsbi.crud.transact.delete(sess, transact_in)
+    result = crud.transact.delete(sess, transact_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact {transact_in} not found"

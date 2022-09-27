@@ -1,62 +1,62 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.{{ module }}
-import qsbi.crud
+import qsbi.api.schemas.{{ module }} as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.{{ module }}.{{ classname }})
+@router.post("/", status_code=201, response_model=schema.{{ classname }})
 def create_{{ module }}(
         *,
-        {{ module }}_in: qsbi.api.schemas.{{ module }}.{{ classname }}Create,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.{{ module }}.{{ classname }}:
+        {{ module }}_in: schema.{{ classname }}Create,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.{{ classname }}:
     """
     create a new {{ module }}
     """
-    {{ module }} = qsbi.crud.{{ module }}.create(sess, {{ module }}_in)
+    {{ module }} = crud.{{ module }}.create(sess, {{ module }}_in)
     return {{ module }}
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.{{ module }}.{{ classname }}Seq)
+@router.get("/list", status_code=200, response_model=schema.{{ classname }}Seq)
 def list_{{ module }}s(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.{{ module }}.{{ classname }}Seq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.{{ classname }}Seq:
     """
     list all {{ module }}s
     """
-    {{ module }}s = qsbi.crud.{{ module }}.list(sess, skip, limit)
+    {{ module }}s = crud.{{ module }}.list(sess, skip, limit)
     return {"results": {{ module }}s}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.{{ module }}.{{ classname }}Seq)
+@router.post("/search", status_code=200, response_model=schema.{{ classname }}Seq)
 def search_{{ module }}s(
         *,
-        {{ module }}_in: qsbi.api.schemas.{{ module }}.{{ classname }}Read,
+        {{ module }}_in: schema.{{ classname }}Read,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.{{ module }}.{{ classname }}Seq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.{{ classname }}Seq:
     """
     search {{ module }}s
     """
-    {{ module }}s = qsbi.crud.{{ module }}.search(sess, {{ module }}_in, limit)
+    {{ module }}s = crud.{{ module }}.search(sess, {{ module }}_in, limit)
     return {"results": {{ module }}s}
 
 {% for attr in get_by_attrs -%}
-@router.get("/{{ attr.name }}/{{'{'}}{{ attr.name }}{{'}'}}", status_code=200, response_model=qsbi.api.schemas.{{ module }}.{{ classname }})
+@router.get("/{{ attr.name }}/{{'{'}}{{ attr.name }}{{'}'}}", status_code=200, response_model=schema.{{ classname }})
 def get_{{ module }}_by_{{ attr.name }}(
         *,
         {{ attr.name }}: {{ attr.type }},
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.{{ module }}.{{ classname }}]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.{{ classname }}]:
     """
     get {{ module }} by {{ attr.name }}
     """
-    result = qsbi.crud.{{ module }}.get_by(sess, '{{ attr.name }}', {{ attr.name }})
+    result = crud.{{ module }}.get_by(sess, '{{ attr.name }}', {{ attr.name }})
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} with {{ attr.name }} {{'{'}}{{ attr.name }}{{'}'}} not found"
@@ -66,16 +66,16 @@ def get_{{ module }}_by_{{ attr.name }}(
 {% endfor %}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.{{ module }}.{{ classname }})
+@router.put("/", status_code=201, response_model=schema.{{ classname }})
 def update_{{ module }}(
         *,
-        {{ module }}_in: qsbi.api.schemas.{{ module }}.{{ classname }}Update,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.{{ module }}.{{ classname }}]:
+        {{ module }}_in: schema.{{ classname }}Update,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.{{ classname }}]:
     """
     update existing {{ module }}
     """
-    result = qsbi.crud.{{ module }}.update(sess, {{ module }}_in)
+    result = crud.{{ module }}.update(sess, {{ module }}_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} {{'{'}}{{ module }}_in{{'}'}} not found"
@@ -83,16 +83,16 @@ def update_{{ module }}(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.{{ module }}.{{ classname }}Dict)
+@router.delete("/", status_code=200, response_model=schema.{{ classname }}Dict)
 def delete_{{ module }}(
         *,
-        {{ module }}_in: qsbi.api.schemas.{{ module }}.{{ classname }}Delete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        {{ module }}_in: schema.{{ classname }}Delete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one {{ module }}
     """
-    result = qsbi.crud.{{ module }}.delete(sess, {{ module }}_in)
+    result = crud.{{ module }}.delete(sess, {{ module }}_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} {{'{'}}{{ module }}_in{{'}'}} not found"

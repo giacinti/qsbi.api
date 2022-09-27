@@ -1,77 +1,77 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.account_type
-import qsbi.crud
+import qsbi.api.schemas.account_type as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.account_type.AccountType)
+@router.post("/", status_code=201, response_model=schema.AccountType)
 def create_account_type(
         *,
-        account_type_in: qsbi.api.schemas.account_type.AccountTypeCreate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.account_type.AccountType:
+        account_type_in: schema.AccountTypeCreate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.AccountType:
     """
     create a new account_type
     """
-    account_type = qsbi.crud.account_type.create(sess, account_type_in)
+    account_type = crud.account_type.create(sess, account_type_in)
     return account_type
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.account_type.AccountTypeSeq)
+@router.get("/list", status_code=200, response_model=schema.AccountTypeSeq)
 def list_account_types(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.account_type.AccountTypeSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.AccountTypeSeq:
     """
     list all account_types
     """
-    account_types = qsbi.crud.account_type.list(sess, skip, limit)
+    account_types = crud.account_type.list(sess, skip, limit)
     return {"results": account_types}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.account_type.AccountTypeSeq)
+@router.post("/search", status_code=200, response_model=schema.AccountTypeSeq)
 def search_account_types(
         *,
-        account_type_in: qsbi.api.schemas.account_type.AccountTypeRead,
+        account_type_in: schema.AccountTypeRead,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.account_type.AccountTypeSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.AccountTypeSeq:
     """
     search account_types
     """
-    account_types = qsbi.crud.account_type.search(sess, account_type_in, limit)
+    account_types = crud.account_type.search(sess, account_type_in, limit)
     return {"results": account_types}
 
-@router.get("/id/{id}", status_code=200, response_model=qsbi.api.schemas.account_type.AccountType)
+@router.get("/id/{id}", status_code=200, response_model=schema.AccountType)
 def get_account_type_by_id(
         *,
         id: int,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.account_type.AccountType]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.AccountType]:
     """
     get account_type by id
     """
-    result = qsbi.crud.account_type.get_by(sess, 'id', id)
+    result = crud.account_type.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"AccountType with id {id} not found"
         )
     return result
   
-@router.get("/name/{name}", status_code=200, response_model=qsbi.api.schemas.account_type.AccountType)
+@router.get("/name/{name}", status_code=200, response_model=schema.AccountType)
 def get_account_type_by_name(
         *,
         name: str,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.account_type.AccountType]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.AccountType]:
     """
     get account_type by name
     """
-    result = qsbi.crud.account_type.get_by(sess, 'name', name)
+    result = crud.account_type.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"AccountType with name {name} not found"
@@ -81,16 +81,16 @@ def get_account_type_by_name(
 
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.account_type.AccountType)
+@router.put("/", status_code=201, response_model=schema.AccountType)
 def update_account_type(
         *,
-        account_type_in: qsbi.api.schemas.account_type.AccountTypeUpdate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.account_type.AccountType]:
+        account_type_in: schema.AccountTypeUpdate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.AccountType]:
     """
     update existing account_type
     """
-    result = qsbi.crud.account_type.update(sess, account_type_in)
+    result = crud.account_type.update(sess, account_type_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"AccountType {account_type_in} not found"
@@ -98,16 +98,16 @@ def update_account_type(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.account_type.AccountTypeDict)
+@router.delete("/", status_code=200, response_model=schema.AccountTypeDict)
 def delete_account_type(
         *,
-        account_type_in: qsbi.api.schemas.account_type.AccountTypeDelete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        account_type_in: schema.AccountTypeDelete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one account_type
     """
-    result = qsbi.crud.account_type.delete(sess, account_type_in)
+    result = crud.account_type.delete(sess, account_type_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"AccountType {account_type_in} not found"

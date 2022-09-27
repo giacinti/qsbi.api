@@ -1,61 +1,61 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.payment
-import qsbi.crud
+import qsbi.api.schemas.payment as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.payment.Payment)
+@router.post("/", status_code=201, response_model=schema.Payment)
 def create_payment(
         *,
-        payment_in: qsbi.api.schemas.payment.PaymentCreate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.payment.Payment:
+        payment_in: schema.PaymentCreate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.Payment:
     """
     create a new payment
     """
-    payment = qsbi.crud.payment.create(sess, payment_in)
+    payment = crud.payment.create(sess, payment_in)
     return payment
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.payment.PaymentSeq)
+@router.get("/list", status_code=200, response_model=schema.PaymentSeq)
 def list_payments(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.payment.PaymentSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.PaymentSeq:
     """
     list all payments
     """
-    payments = qsbi.crud.payment.list(sess, skip, limit)
+    payments = crud.payment.list(sess, skip, limit)
     return {"results": payments}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.payment.PaymentSeq)
+@router.post("/search", status_code=200, response_model=schema.PaymentSeq)
 def search_payments(
         *,
-        payment_in: qsbi.api.schemas.payment.PaymentRead,
+        payment_in: schema.PaymentRead,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.payment.PaymentSeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.PaymentSeq:
     """
     search payments
     """
-    payments = qsbi.crud.payment.search(sess, payment_in, limit)
+    payments = crud.payment.search(sess, payment_in, limit)
     return {"results": payments}
 
-@router.get("/id/{id}", status_code=200, response_model=qsbi.api.schemas.payment.Payment)
+@router.get("/id/{id}", status_code=200, response_model=schema.Payment)
 def get_payment_by_id(
         *,
         id: int,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.payment.Payment]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Payment]:
     """
     get payment by id
     """
-    result = qsbi.crud.payment.get_by(sess, 'id', id)
+    result = crud.payment.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Payment with id {id} not found"
@@ -65,16 +65,16 @@ def get_payment_by_id(
 
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.payment.Payment)
+@router.put("/", status_code=201, response_model=schema.Payment)
 def update_payment(
         *,
-        payment_in: qsbi.api.schemas.payment.PaymentUpdate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.payment.Payment]:
+        payment_in: schema.PaymentUpdate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Payment]:
     """
     update existing payment
     """
-    result = qsbi.crud.payment.update(sess, payment_in)
+    result = crud.payment.update(sess, payment_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Payment {payment_in} not found"
@@ -82,16 +82,16 @@ def update_payment(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.payment.PaymentDict)
+@router.delete("/", status_code=200, response_model=schema.PaymentDict)
 def delete_payment(
         *,
-        payment_in: qsbi.api.schemas.payment.PaymentDelete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        payment_in: schema.PaymentDelete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one payment
     """
-    result = qsbi.crud.payment.delete(sess, payment_in)
+    result = crud.payment.delete(sess, payment_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Payment {payment_in} not found"

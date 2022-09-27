@@ -1,77 +1,77 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
-import qsbi.api.schemas.party
-import qsbi.crud
+import qsbi.api.schemas.party as schema
+import qsbi.api.crud as crud
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=qsbi.api.schemas.party.Party)
+@router.post("/", status_code=201, response_model=schema.Party)
 def create_party(
         *,
-        party_in: qsbi.api.schemas.party.PartyCreate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.party.Party:
+        party_in: schema.PartyCreate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.Party:
     """
     create a new party
     """
-    party = qsbi.crud.party.create(sess, party_in)
+    party = crud.party.create(sess, party_in)
     return party
 
 ## READ
-@router.get("/list", status_code=200, response_model=qsbi.api.schemas.party.PartySeq)
+@router.get("/list", status_code=200, response_model=schema.PartySeq)
 def list_partys(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.party.PartySeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.PartySeq:
     """
     list all partys
     """
-    partys = qsbi.crud.party.list(sess, skip, limit)
+    partys = crud.party.list(sess, skip, limit)
     return {"results": partys}
 
-@router.post("/search", status_code=200, response_model=qsbi.api.schemas.party.PartySeq)
+@router.post("/search", status_code=200, response_model=schema.PartySeq)
 def search_partys(
         *,
-        party_in: qsbi.api.schemas.party.PartyRead,
+        party_in: schema.PartyRead,
         limit: Optional[int] = 100,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> qsbi.api.schemas.party.PartySeq:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> schema.PartySeq:
     """
     search partys
     """
-    partys = qsbi.crud.party.search(sess, party_in, limit)
+    partys = crud.party.search(sess, party_in, limit)
     return {"results": partys}
 
-@router.get("/id/{id}", status_code=200, response_model=qsbi.api.schemas.party.Party)
+@router.get("/id/{id}", status_code=200, response_model=schema.Party)
 def get_party_by_id(
         *,
         id: int,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.party.Party]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Party]:
     """
     get party by id
     """
-    result = qsbi.crud.party.get_by(sess, 'id', id)
+    result = crud.party.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Party with id {id} not found"
         )
     return result
   
-@router.get("/name/{name}", status_code=200, response_model=qsbi.api.schemas.party.Party)
+@router.get("/name/{name}", status_code=200, response_model=schema.Party)
 def get_party_by_name(
         *,
         name: str,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.party.Party]:
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Party]:
     """
     get party by name
     """
-    result = qsbi.crud.party.get_by(sess, 'name', name)
+    result = crud.party.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Party with name {name} not found"
@@ -81,16 +81,16 @@ def get_party_by_name(
 
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=qsbi.api.schemas.party.Party)
+@router.put("/", status_code=201, response_model=schema.Party)
 def update_party(
         *,
-        party_in: qsbi.api.schemas.party.PartyUpdate,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
-        ) -> Optional[qsbi.api.schemas.party.Party]:
+        party_in: schema.PartyUpdate,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> Optional[schema.Party]:
     """
     update existing party
     """
-    result = qsbi.crud.party.update(sess, party_in)
+    result = crud.party.update(sess, party_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Party {party_in} not found"
@@ -98,16 +98,16 @@ def update_party(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=qsbi.api.schemas.party.PartyDict)
+@router.delete("/", status_code=200, response_model=schema.PartyDict)
 def delete_party(
         *,
-        party_in: qsbi.api.schemas.party.PartyDelete,
-        sess: qsbi.crud.CRUDSession = Depends(qsbi.crud.get_session),
+        party_in: schema.PartyDelete,
+        sess: crud.CRUDSession = Depends(crud.get_session),
 	) -> Optional[Dict]:
     """
     delete one party
     """
-    result = qsbi.crud.party.delete(sess, party_in)
+    result = crud.party.delete(sess, party_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Party {party_in} not found"
