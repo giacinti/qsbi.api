@@ -1,6 +1,6 @@
 import pathlib
-from pydantic import BaseSettings
-from typing import Union, List, AnyHttpUrl
+from pydantic import BaseSettings, AnyHttpUrl, validator
+from typing import Union, List
 
 
 # Project Directories
