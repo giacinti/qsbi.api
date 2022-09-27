@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
+import qsbi.api.schemas.base
 import qsbi.api.schemas.bank as schema
 import qsbi.api.crud as crud
 
@@ -8,7 +9,7 @@ router = APIRouter()
 
 ## CREATE
 @router.post("/", status_code=201, response_model=schema.Bank)
-def create_bank(
+async def create_bank(
         *,
         bank_in: schema.BankCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -16,12 +17,12 @@ def create_bank(
     """
     create a new bank
     """
-    bank = crud.bank.create(sess, bank_in)
+    bank = await crud.bank.create(sess, bank_in)
     return bank
 
 ## READ
 @router.get("/list", status_code=200, response_model=schema.BankSeq)
-def list_banks(
+async def list_banks(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
@@ -30,11 +31,11 @@ def list_banks(
     """
     list all banks
     """
-    banks = crud.bank.list(sess, skip, limit)
+    banks = await crud.bank.list(sess, skip, limit)
     return {"results": banks}
 
 @router.post("/search", status_code=200, response_model=schema.BankSeq)
-def search_banks(
+async def search_banks(
         *,
         bank_in: schema.BankRead,
         limit: Optional[int] = 100,
@@ -43,11 +44,11 @@ def search_banks(
     """
     search banks
     """
-    banks = crud.bank.search(sess, bank_in, limit)
+    banks = await crud.bank.search(sess, bank_in, limit)
     return {"results": banks}
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Bank)
-def get_bank_by_id(
+async def get_bank_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -55,7 +56,7 @@ def get_bank_by_id(
     """
     get bank by id
     """
-    result = crud.bank.get_by(sess, 'id', id)
+    result = await crud.bank.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Bank with id {id} not found"
@@ -63,7 +64,7 @@ def get_bank_by_id(
     return result
   
 @router.get("/name/{name}", status_code=200, response_model=schema.Bank)
-def get_bank_by_name(
+async def get_bank_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -71,18 +72,27 @@ def get_bank_by_name(
     """
     get bank by name
     """
-    result = crud.bank.get_by(sess, 'name', name)
+    result = await crud.bank.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Bank with name {name} not found"
         )
     return result
   
-
+@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+async def count_banks(
+        *,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> qsbi.api.schemas.base.CountResult:
+    """
+    count all banks
+    """
+    count = await crud.bank.count(sess)
+    return {"count": count}
 
 ## UPDATE
 @router.put("/", status_code=201, response_model=schema.Bank)
-def update_bank(
+async def update_bank(
         *,
         bank_in: schema.BankUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -90,7 +100,7 @@ def update_bank(
     """
     update existing bank
     """
-    result = crud.bank.update(sess, bank_in)
+    result = await crud.bank.update(sess, bank_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Bank {bank_in} not found"
@@ -99,7 +109,7 @@ def update_bank(
 
 ## DELETE
 @router.delete("/", status_code=200, response_model=schema.BankDict)
-def delete_bank(
+async def delete_bank(
         *,
         bank_in: schema.BankDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -107,7 +117,7 @@ def delete_bank(
     """
     delete one bank
     """
-    result = crud.bank.delete(sess, bank_in)
+    result = await crud.bank.delete(sess, bank_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Bank {bank_in} not found"

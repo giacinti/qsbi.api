@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Optional,Sequence
 from pydantic import BaseModel,root_validator
 
-from .base import BaseORM, BaseAny, BaseId, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseId, check_one_non_null, check_all_non_null
 from .user import User
 
-class AuditLog(BaseORM):
+class AuditLog(BaseQsbi):
     id: Optional[int]
-    user: Optional[User]
+    user_id: Optional[int]
     date: Optional[datetime]
     notes: Optional[str]
 

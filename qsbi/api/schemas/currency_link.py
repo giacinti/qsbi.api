@@ -2,17 +2,17 @@ from datetime import datetime
 from typing import Optional, Sequence
 from pydantic import BaseModel,root_validator
 
-from .base import BaseORM, BaseAny, BaseId, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseId, check_one_non_null, check_all_non_null
 from .currency import Currency
 from .audit_log import AuditLog
 
-class CurrencyLink(BaseORM):
+class CurrencyLink(BaseQsbi):
     id : Optional[int]
-    cur1 : Optional[Currency]
-    cur2 : Optional[Currency]
+    cur1_id : Optional[int]
+    cur2_id : Optional[int]
     rate : Optional[float]
     date : Optional[datetime]
-    log :  Optional[AuditLog]
+    log_id :  Optional[int]
 
 class CurrencyLinkDict(BaseModel):
     id : Optional[int]

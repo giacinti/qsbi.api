@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, BaseId, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseId, check_one_non_null, check_all_non_null
 from .account import Account
 from .party import Party
 from .category import Category
@@ -12,23 +12,23 @@ from .payment import Payment
 from .audit_log import AuditLog
 from .reconcile import Reconcile
 
-class Transact(BaseORM):
+class Transact(BaseQsbi):
     id : Optional[int]
-    account : Optional[Account]
+    account_id : Optional[int]
     transaction_date : Optional[datetime]
     value_date : Optional[datetime]
-    party : Optional[Party]
-    category : Optional[Category]
-    sub_category : Optional[SubCategory]
+    party_id : Optional[int]
+    category_id : Optional[int]
+    sub_category_id : Optional[int]
     notes : Optional[str]
     amount : Optional[float]
-    currency : Optional[Currency]
+    currency_id : Optional[int]
     exchange_rate : Optional[float]
     exchange_fees : Optional[float]
-    payment : Optional[Payment]
-    master : Optional['Transact']
-    reconcile : Optional[Reconcile]
-    log : Optional[AuditLog]
+    payment_id : Optional[int]
+    master_id : Optional[int]
+    reconcile_id : Optional[int]
+    log_id : Optional[int]
 
 class TransactDict(BaseModel):
     id : Optional[int]

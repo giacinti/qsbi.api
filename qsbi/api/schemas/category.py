@@ -1,13 +1,13 @@
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, BaseIdOrName, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrName, check_one_non_null, check_all_non_null
 from .category_type import CategoryType
 
-class Category(BaseORM):
+class Category(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
-    type: Optional[CategoryType]
+    type_id: Optional[int]
 
 class CategoryDict(BaseModel):
     id: Optional[int]

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
+import qsbi.api.schemas.base
 import qsbi.api.schemas.currency as schema
 import qsbi.api.crud as crud
 
@@ -8,7 +9,7 @@ router = APIRouter()
 
 ## CREATE
 @router.post("/", status_code=201, response_model=schema.Currency)
-def create_currency(
+async def create_currency(
         *,
         currency_in: schema.CurrencyCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -16,12 +17,12 @@ def create_currency(
     """
     create a new currency
     """
-    currency = crud.currency.create(sess, currency_in)
+    currency = await crud.currency.create(sess, currency_in)
     return currency
 
 ## READ
 @router.get("/list", status_code=200, response_model=schema.CurrencySeq)
-def list_currencys(
+async def list_currencys(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
@@ -30,11 +31,11 @@ def list_currencys(
     """
     list all currencys
     """
-    currencys = crud.currency.list(sess, skip, limit)
+    currencys = await crud.currency.list(sess, skip, limit)
     return {"results": currencys}
 
 @router.post("/search", status_code=200, response_model=schema.CurrencySeq)
-def search_currencys(
+async def search_currencys(
         *,
         currency_in: schema.CurrencyRead,
         limit: Optional[int] = 100,
@@ -43,11 +44,11 @@ def search_currencys(
     """
     search currencys
     """
-    currencys = crud.currency.search(sess, currency_in, limit)
+    currencys = await crud.currency.search(sess, currency_in, limit)
     return {"results": currencys}
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Currency)
-def get_currency_by_id(
+async def get_currency_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -55,7 +56,7 @@ def get_currency_by_id(
     """
     get currency by id
     """
-    result = crud.currency.get_by(sess, 'id', id)
+    result = await crud.currency.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency with id {id} not found"
@@ -63,7 +64,7 @@ def get_currency_by_id(
     return result
   
 @router.get("/name/{name}", status_code=200, response_model=schema.Currency)
-def get_currency_by_name(
+async def get_currency_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -71,7 +72,7 @@ def get_currency_by_name(
     """
     get currency by name
     """
-    result = crud.currency.get_by(sess, 'name', name)
+    result = await crud.currency.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency with name {name} not found"
@@ -79,7 +80,7 @@ def get_currency_by_name(
     return result
   
 @router.get("/nickname/{nickname}", status_code=200, response_model=schema.Currency)
-def get_currency_by_nickname(
+async def get_currency_by_nickname(
         *,
         nickname: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -87,7 +88,7 @@ def get_currency_by_nickname(
     """
     get currency by nickname
     """
-    result = crud.currency.get_by(sess, 'nickname', nickname)
+    result = await crud.currency.get_by(sess, 'nickname', nickname)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency with nickname {nickname} not found"
@@ -95,7 +96,7 @@ def get_currency_by_nickname(
     return result
   
 @router.get("/code/{code}", status_code=200, response_model=schema.Currency)
-def get_currency_by_code(
+async def get_currency_by_code(
         *,
         code: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -103,18 +104,27 @@ def get_currency_by_code(
     """
     get currency by code
     """
-    result = crud.currency.get_by(sess, 'code', code)
+    result = await crud.currency.get_by(sess, 'code', code)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency with code {code} not found"
         )
     return result
   
-
+@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+async def count_currencys(
+        *,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> qsbi.api.schemas.base.CountResult:
+    """
+    count all currencys
+    """
+    count = await crud.currency.count(sess)
+    return {"count": count}
 
 ## UPDATE
 @router.put("/", status_code=201, response_model=schema.Currency)
-def update_currency(
+async def update_currency(
         *,
         currency_in: schema.CurrencyUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -122,7 +132,7 @@ def update_currency(
     """
     update existing currency
     """
-    result = crud.currency.update(sess, currency_in)
+    result = await crud.currency.update(sess, currency_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency {currency_in} not found"
@@ -131,7 +141,7 @@ def update_currency(
 
 ## DELETE
 @router.delete("/", status_code=200, response_model=schema.CurrencyDict)
-def delete_currency(
+async def delete_currency(
         *,
         currency_in: schema.CurrencyDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -139,7 +149,7 @@ def delete_currency(
     """
     delete one currency
     """
-    result = crud.currency.delete(sess, currency_in)
+    result = await crud.currency.delete(sess, currency_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Currency {currency_in} not found"

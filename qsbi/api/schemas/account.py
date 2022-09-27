@@ -2,24 +2,24 @@ from datetime import datetime
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, BaseIdOrName, BaseGet, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrName, BaseGet, check_one_non_null, check_all_non_null
 from .account_type import AccountType
 from .currency import Currency
 from .bank import Bank
 
 ##############################################################################
-class Account(BaseORM):
+class Account(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
-    bank: Optional[Bank]
+    bank_id: Optional[int]
     bank_branch: Optional[str]
     bank_account: Optional[str]
     bank_account_key : Optional[str]
     bank_IBAN : Optional[str]
-    currency : Optional[Currency]
+    currency_id : Optional[int]
     open_date : Optional[datetime]
     close_date : Optional[datetime]
-    type : Optional[AccountType]
+    type_id : Optional[int]
     initial_balance : Optional[float] = 0.0
     mini_balance_wanted : Optional[float] = 0.0
     mini_balance_auth : Optional[float] = 0.0

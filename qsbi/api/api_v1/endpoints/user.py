@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
+import qsbi.api.schemas.base
 import qsbi.api.schemas.user as schema
 import qsbi.api.crud as crud
 
@@ -8,7 +9,7 @@ router = APIRouter()
 
 ## CREATE
 @router.post("/", status_code=201, response_model=schema.User)
-def create_user(
+async def create_user(
         *,
         user_in: schema.UserCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -16,12 +17,12 @@ def create_user(
     """
     create a new user
     """
-    user = crud.user.create(sess, user_in)
+    user = await crud.user.create(sess, user_in)
     return user
 
 ## READ
 @router.get("/list", status_code=200, response_model=schema.UserSeq)
-def list_users(
+async def list_users(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
@@ -30,11 +31,11 @@ def list_users(
     """
     list all users
     """
-    users = crud.user.list(sess, skip, limit)
+    users = await crud.user.list(sess, skip, limit)
     return {"results": users}
 
 @router.post("/search", status_code=200, response_model=schema.UserSeq)
-def search_users(
+async def search_users(
         *,
         user_in: schema.UserRead,
         limit: Optional[int] = 100,
@@ -43,11 +44,11 @@ def search_users(
     """
     search users
     """
-    users = crud.user.search(sess, user_in, limit)
+    users = await crud.user.search(sess, user_in, limit)
     return {"results": users}
 
 @router.get("/id/{id}", status_code=200, response_model=schema.User)
-def get_user_by_id(
+async def get_user_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -55,7 +56,7 @@ def get_user_by_id(
     """
     get user by id
     """
-    result = crud.user.get_by(sess, 'id', id)
+    result = await crud.user.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"User with id {id} not found"
@@ -63,7 +64,7 @@ def get_user_by_id(
     return result
   
 @router.get("/login/{login}", status_code=200, response_model=schema.User)
-def get_user_by_login(
+async def get_user_by_login(
         *,
         login: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -71,18 +72,27 @@ def get_user_by_login(
     """
     get user by login
     """
-    result = crud.user.get_by(sess, 'login', login)
+    result = await crud.user.get_by(sess, 'login', login)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"User with login {login} not found"
         )
     return result
   
-
+@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+async def count_users(
+        *,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> qsbi.api.schemas.base.CountResult:
+    """
+    count all users
+    """
+    count = await crud.user.count(sess)
+    return {"count": count}
 
 ## UPDATE
 @router.put("/", status_code=201, response_model=schema.User)
-def update_user(
+async def update_user(
         *,
         user_in: schema.UserUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -90,7 +100,7 @@ def update_user(
     """
     update existing user
     """
-    result = crud.user.update(sess, user_in)
+    result = await crud.user.update(sess, user_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"User {user_in} not found"
@@ -99,7 +109,7 @@ def update_user(
 
 ## DELETE
 @router.delete("/", status_code=200, response_model=schema.UserDict)
-def delete_user(
+async def delete_user(
         *,
         user_in: schema.UserDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -107,7 +117,7 @@ def delete_user(
     """
     delete one user
     """
-    result = crud.user.delete(sess, user_in)
+    result = await crud.user.delete(sess, user_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"User {user_in} not found"

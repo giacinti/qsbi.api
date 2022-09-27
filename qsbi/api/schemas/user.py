@@ -1,10 +1,10 @@
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, check_one_non_null, check_all_non_null
 
 ##############################################################################
-class User(BaseORM):
+class User(BaseQsbi):
     id : Optional[int]
     login: Optional[str]
     firstname : Optional[str]

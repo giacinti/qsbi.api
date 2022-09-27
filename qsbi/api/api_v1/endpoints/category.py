@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends
 from typing import Optional, Dict
 
+import qsbi.api.schemas.base
 import qsbi.api.schemas.category as schema
 import qsbi.api.crud as crud
 
@@ -8,7 +9,7 @@ router = APIRouter()
 
 ## CREATE
 @router.post("/", status_code=201, response_model=schema.Category)
-def create_category(
+async def create_category(
         *,
         category_in: schema.CategoryCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -16,12 +17,12 @@ def create_category(
     """
     create a new category
     """
-    category = crud.category.create(sess, category_in)
+    category = await crud.category.create(sess, category_in)
     return category
 
 ## READ
 @router.get("/list", status_code=200, response_model=schema.CategorySeq)
-def list_categorys(
+async def list_categorys(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
@@ -30,11 +31,11 @@ def list_categorys(
     """
     list all categorys
     """
-    categorys = crud.category.list(sess, skip, limit)
+    categorys = await crud.category.list(sess, skip, limit)
     return {"results": categorys}
 
 @router.post("/search", status_code=200, response_model=schema.CategorySeq)
-def search_categorys(
+async def search_categorys(
         *,
         category_in: schema.CategoryRead,
         limit: Optional[int] = 100,
@@ -43,11 +44,11 @@ def search_categorys(
     """
     search categorys
     """
-    categorys = crud.category.search(sess, category_in, limit)
+    categorys = await crud.category.search(sess, category_in, limit)
     return {"results": categorys}
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Category)
-def get_category_by_id(
+async def get_category_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -55,7 +56,7 @@ def get_category_by_id(
     """
     get category by id
     """
-    result = crud.category.get_by(sess, 'id', id)
+    result = await crud.category.get_by(sess, 'id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category with id {id} not found"
@@ -63,7 +64,7 @@ def get_category_by_id(
     return result
   
 @router.get("/name/{name}", status_code=200, response_model=schema.Category)
-def get_category_by_name(
+async def get_category_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -71,18 +72,27 @@ def get_category_by_name(
     """
     get category by name
     """
-    result = crud.category.get_by(sess, 'name', name)
+    result = await crud.category.get_by(sess, 'name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category with name {name} not found"
         )
     return result
   
-
+@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+async def count_categorys(
+        *,
+        sess: crud.CRUDSession = Depends(crud.get_session),
+        ) -> qsbi.api.schemas.base.CountResult:
+    """
+    count all categorys
+    """
+    count = await crud.category.count(sess)
+    return {"count": count}
 
 ## UPDATE
 @router.put("/", status_code=201, response_model=schema.Category)
-def update_category(
+async def update_category(
         *,
         category_in: schema.CategoryUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -90,7 +100,7 @@ def update_category(
     """
     update existing category
     """
-    result = crud.category.update(sess, category_in)
+    result = await crud.category.update(sess, category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category {category_in} not found"
@@ -99,7 +109,7 @@ def update_category(
 
 ## DELETE
 @router.delete("/", status_code=200, response_model=schema.CategoryDict)
-def delete_category(
+async def delete_category(
         *,
         category_in: schema.CategoryDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
@@ -107,7 +117,7 @@ def delete_category(
     """
     delete one category
     """
-    result = crud.category.delete(sess, category_in)
+    result = await crud.category.delete(sess, category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Category {category_in} not found"

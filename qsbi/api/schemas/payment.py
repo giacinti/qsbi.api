@@ -1,16 +1,16 @@
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, BaseIdOrAccount, BaseId, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrAccount, BaseId, check_one_non_null, check_all_non_null
 from .account import Account
 from .payment_type import PaymentType
 
-class Payment(BaseORM):
+class Payment(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
-    account: Optional[Account]
+    account_id: Optional[int]
     current: Optional[int]
-    type: Optional[PaymentType]
+    type_id: Optional[int]
 
 class PaymentDict(BaseModel):
     id: Optional[int]

@@ -1,9 +1,9 @@
 from typing import Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseORM, BaseAny, BaseIdOrName, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrName, check_all_non_null
 
-class AccountType(BaseORM):
+class AccountType(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
 

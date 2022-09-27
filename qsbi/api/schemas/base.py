@@ -42,17 +42,21 @@ class BaseORM(BaseModel):
     class Config:
         orm_mode = True
 
-class BaseAny(BaseORM):
+# basic class - change here to skip ORM
+class BaseQsbi(BaseORM):
+    pass
+
+class BaseAny(BaseQsbi):
     @root_validator
     def BaseAny_validate(cls, values):
         return check_one_non_null(values)
 
-class BaseId(BaseORM):
+class BaseId(BaseQsbi):
     @root_validator
     def BaseGet_validate(cls, values):
         return check_all_non_null(values,'id')
     
-class BaseIdOrName(BaseORM):
+class BaseIdOrName(BaseQsbi):
     @root_validator
     def BaseIdOrName_validate(cls, values):
         return check_one_non_null(values,'id','name')
@@ -60,10 +64,14 @@ class BaseIdOrName(BaseORM):
 class BaseGet(BaseIdOrName):
     pass
 
-class BaseIdOrAccount(BaseORM):
+class BaseIdOrAccount(BaseQsbi):
     @root_validator
     def BaseIdOrAccount_validate(cls, values):
         return check_one_non_null(values,'id',('name','account'))
 
 class BaseWithAccount(BaseIdOrAccount):
     pass
+
+# common class - count result
+class CountResult(BaseModel):
+    count: int
