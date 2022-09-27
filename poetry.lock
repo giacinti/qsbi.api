@@ -213,7 +213,7 @@ description = "abstract CRUD module between API & backend"
 category = "main"
 optional = false
 python-versions = "^3.9"
-develop = false
+develop = true
 
 [package.source]
 type = "directory"
@@ -289,7 +289,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.4.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "5d5dd874fde9a02a744fb0ead38cf2649945e2a9ad5741ce24b0c413f2461db4"
+content-hash = "e0263d2d1aa24a71c8010b10e2f8f51330e867ca1ae69ed543c87d393e0644ce"
 
 [metadata.files]
 anyio = [

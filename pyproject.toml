@@ -13,7 +13,7 @@ fastapi = "^0.85.0"
 pydantic = "^1.10.2"
 uvicorn = "^0.18.3"
 gunicorn = "^20.1.0"
-qsbi-crud = {path = "../qsbi.crud"}
+qsbi-crud = {path = "../qsbi.crud", develop = true}
 
 
 [tool.poetry.group.dev.dependencies]
