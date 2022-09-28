@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.bank as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Bank)
+@router.post("", status_code=201, response_model=schema.Bank)
 async def create_bank(
         *,
         bank_in: schema.BankCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Bank:
     """
     create a new bank
@@ -27,6 +29,7 @@ async def list_banks(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.BankSeq:
     """
     list all banks
@@ -40,6 +43,7 @@ async def search_banks(
         bank_in: schema.BankRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.BankSeq:
     """
     search banks
@@ -52,6 +56,7 @@ async def get_bank_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Bank]:
     """
     get bank by id
@@ -68,6 +73,7 @@ async def get_bank_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Bank]:
     """
     get bank by name
@@ -83,6 +89,7 @@ async def get_bank_by_name(
 async def count_banks(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all banks
@@ -91,11 +98,12 @@ async def count_banks(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Bank)
+@router.put("", status_code=201, response_model=schema.Bank)
 async def update_bank(
         *,
         bank_in: schema.BankUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Bank]:
     """
     update existing bank
@@ -108,11 +116,12 @@ async def update_bank(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.BankDict)
+@router.delete("", status_code=200, response_model=schema.BankDict)
 async def delete_bank(
         *,
         bank_in: schema.BankDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one bank

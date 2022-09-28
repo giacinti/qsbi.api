@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.transact as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Transact)
+@router.post("", status_code=201, response_model=schema.Transact)
 async def create_transact(
         *,
         transact_in: schema.TransactCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Transact:
     """
     create a new transact
@@ -27,6 +29,7 @@ async def list_transacts(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.TransactSeq:
     """
     list all transacts
@@ -40,6 +43,7 @@ async def search_transacts(
         transact_in: schema.TransactRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.TransactSeq:
     """
     search transacts
@@ -52,6 +56,7 @@ async def get_transact_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Transact]:
     """
     get transact by id
@@ -67,6 +72,7 @@ async def get_transact_by_id(
 async def count_transacts(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all transacts
@@ -75,11 +81,12 @@ async def count_transacts(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Transact)
+@router.put("", status_code=201, response_model=schema.Transact)
 async def update_transact(
         *,
         transact_in: schema.TransactUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Transact]:
     """
     update existing transact
@@ -92,11 +99,12 @@ async def update_transact(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.TransactDict)
+@router.delete("", status_code=200, response_model=schema.TransactDict)
 async def delete_transact(
         *,
         transact_in: schema.TransactDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one transact

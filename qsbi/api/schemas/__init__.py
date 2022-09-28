@@ -3,7 +3,7 @@ from .currency_link import CurrencyLinkDict, CurrencyLinkCreate, CurrencyLinkRea
 from .bank import BankDict, BankCreate, BankRead, BankUpdate, BankDelete, BankSeq
 from .category import CategoryDict, CategoryCreate, CategoryRead, CategoryUpdate, CategoryDelete, CategorySeq
 from .category_type import CategoryTypeDict, CategoryTypeCreate, CategoryTypeRead, CategoryTypeUpdate, CategoryTypeDelete, CategoryTypeSeq
-from .user import UserDict, UserCreate, UserRead, UserUpdate, UserDelete, UserSeq
+from .user import UserDict, UserCreate, UserRead, UserUpdate, UserDelete, UserSeq, UserWithPassword
 from .account import AccountDict, AccountCreate, AccountRead, AccountUpdate, AccountDelete, AccountSeq
 from .account_type import AccountTypeDict, AccountTypeCreate, AccountTypeRead, AccountTypeUpdate, AccountTypeDelete, AccountTypeSeq
 from .audit_log import AuditLogDict, AuditLogCreate, AuditLogRead, AuditLogUpdate, AuditLogDelete, AuditLogSeq

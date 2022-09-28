@@ -9,7 +9,11 @@ class User(BaseQsbi):
     login: Optional[str]
     firstname : Optional[str]
     lastname : Optional[str]
+    active: Optional[bool] = False
     notes : Optional[str]
+
+class UserWithPassword(User):
+    password: Optional[str]
 
 class UserValid(BaseModel):
     @root_validator
@@ -21,6 +25,7 @@ class UserDict(BaseModel):
     login: Optional[str]
     firstname : Optional[str]
     lastname : Optional[str]
+    active: Optional[bool]
     notes : Optional[str]
 
 class UserCreate(User):

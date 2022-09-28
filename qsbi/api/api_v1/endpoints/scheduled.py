@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.scheduled as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Scheduled)
+@router.post("", status_code=201, response_model=schema.Scheduled)
 async def create_scheduled(
         *,
         scheduled_in: schema.ScheduledCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Scheduled:
     """
     create a new scheduled
@@ -27,6 +29,7 @@ async def list_scheduleds(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.ScheduledSeq:
     """
     list all scheduleds
@@ -40,6 +43,7 @@ async def search_scheduleds(
         scheduled_in: schema.ScheduledRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.ScheduledSeq:
     """
     search scheduleds
@@ -52,6 +56,7 @@ async def get_scheduled_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Scheduled]:
     """
     get scheduled by id
@@ -67,6 +72,7 @@ async def get_scheduled_by_id(
 async def count_scheduleds(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all scheduleds
@@ -75,11 +81,12 @@ async def count_scheduleds(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Scheduled)
+@router.put("", status_code=201, response_model=schema.Scheduled)
 async def update_scheduled(
         *,
         scheduled_in: schema.ScheduledUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Scheduled]:
     """
     update existing scheduled
@@ -92,11 +99,12 @@ async def update_scheduled(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.ScheduledDict)
+@router.delete("", status_code=200, response_model=schema.ScheduledDict)
 async def delete_scheduled(
         *,
         scheduled_in: schema.ScheduledDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one scheduled

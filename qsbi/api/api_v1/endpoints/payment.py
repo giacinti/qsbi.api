@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.payment as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Payment)
+@router.post("", status_code=201, response_model=schema.Payment)
 async def create_payment(
         *,
         payment_in: schema.PaymentCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Payment:
     """
     create a new payment
@@ -27,6 +29,7 @@ async def list_payments(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.PaymentSeq:
     """
     list all payments
@@ -40,6 +43,7 @@ async def search_payments(
         payment_in: schema.PaymentRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.PaymentSeq:
     """
     search payments
@@ -52,6 +56,7 @@ async def get_payment_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Payment]:
     """
     get payment by id
@@ -67,6 +72,7 @@ async def get_payment_by_id(
 async def count_payments(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all payments
@@ -75,11 +81,12 @@ async def count_payments(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Payment)
+@router.put("", status_code=201, response_model=schema.Payment)
 async def update_payment(
         *,
         payment_in: schema.PaymentUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Payment]:
     """
     update existing payment
@@ -92,11 +99,12 @@ async def update_payment(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.PaymentDict)
+@router.delete("", status_code=200, response_model=schema.PaymentDict)
 async def delete_payment(
         *,
         payment_in: schema.PaymentDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one payment

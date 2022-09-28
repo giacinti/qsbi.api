@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.category as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Category)
+@router.post("", status_code=201, response_model=schema.Category)
 async def create_category(
         *,
         category_in: schema.CategoryCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Category:
     """
     create a new category
@@ -27,6 +29,7 @@ async def list_categorys(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CategorySeq:
     """
     list all categorys
@@ -40,6 +43,7 @@ async def search_categorys(
         category_in: schema.CategoryRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CategorySeq:
     """
     search categorys
@@ -52,6 +56,7 @@ async def get_category_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Category]:
     """
     get category by id
@@ -68,6 +73,7 @@ async def get_category_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Category]:
     """
     get category by name
@@ -83,6 +89,7 @@ async def get_category_by_name(
 async def count_categorys(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all categorys
@@ -91,11 +98,12 @@ async def count_categorys(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Category)
+@router.put("", status_code=201, response_model=schema.Category)
 async def update_category(
         *,
         category_in: schema.CategoryUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Category]:
     """
     update existing category
@@ -108,11 +116,12 @@ async def update_category(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.CategoryDict)
+@router.delete("", status_code=200, response_model=schema.CategoryDict)
 async def delete_category(
         *,
         category_in: schema.CategoryDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one category

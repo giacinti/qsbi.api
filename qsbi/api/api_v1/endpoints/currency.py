@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.currency as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.Currency)
+@router.post("", status_code=201, response_model=schema.Currency)
 async def create_currency(
         *,
         currency_in: schema.CurrencyCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Currency:
     """
     create a new currency
@@ -27,6 +29,7 @@ async def list_currencys(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CurrencySeq:
     """
     list all currencys
@@ -40,6 +43,7 @@ async def search_currencys(
         currency_in: schema.CurrencyRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CurrencySeq:
     """
     search currencys
@@ -52,6 +56,7 @@ async def get_currency_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Currency]:
     """
     get currency by id
@@ -68,6 +73,7 @@ async def get_currency_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Currency]:
     """
     get currency by name
@@ -84,6 +90,7 @@ async def get_currency_by_nickname(
         *,
         nickname: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Currency]:
     """
     get currency by nickname
@@ -100,6 +107,7 @@ async def get_currency_by_code(
         *,
         code: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Currency]:
     """
     get currency by code
@@ -115,6 +123,7 @@ async def get_currency_by_code(
 async def count_currencys(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all currencys
@@ -123,11 +132,12 @@ async def count_currencys(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.Currency)
+@router.put("", status_code=201, response_model=schema.Currency)
 async def update_currency(
         *,
         currency_in: schema.CurrencyUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Currency]:
     """
     update existing currency
@@ -140,11 +150,12 @@ async def update_currency(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.CurrencyDict)
+@router.delete("", status_code=200, response_model=schema.CurrencyDict)
 async def delete_currency(
         *,
         currency_in: schema.CurrencyDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one currency

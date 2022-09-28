@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.account_type as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.AccountType)
+@router.post("", status_code=201, response_model=schema.AccountType)
 async def create_account_type(
         *,
         account_type_in: schema.AccountTypeCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.AccountType:
     """
     create a new account_type
@@ -27,6 +29,7 @@ async def list_account_types(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.AccountTypeSeq:
     """
     list all account_types
@@ -40,6 +43,7 @@ async def search_account_types(
         account_type_in: schema.AccountTypeRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.AccountTypeSeq:
     """
     search account_types
@@ -52,6 +56,7 @@ async def get_account_type_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.AccountType]:
     """
     get account_type by id
@@ -68,6 +73,7 @@ async def get_account_type_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.AccountType]:
     """
     get account_type by name
@@ -83,6 +89,7 @@ async def get_account_type_by_name(
 async def count_account_types(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all account_types
@@ -91,11 +98,12 @@ async def count_account_types(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.AccountType)
+@router.put("", status_code=201, response_model=schema.AccountType)
 async def update_account_type(
         *,
         account_type_in: schema.AccountTypeUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.AccountType]:
     """
     update existing account_type
@@ -108,11 +116,12 @@ async def update_account_type(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.AccountTypeDict)
+@router.delete("", status_code=200, response_model=schema.AccountTypeDict)
 async def delete_account_type(
         *,
         account_type_in: schema.AccountTypeDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one account_type

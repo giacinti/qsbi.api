@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.payment_type as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.PaymentType)
+@router.post("", status_code=201, response_model=schema.PaymentType)
 async def create_payment_type(
         *,
         payment_type_in: schema.PaymentTypeCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.PaymentType:
     """
     create a new payment_type
@@ -27,6 +29,7 @@ async def list_payment_types(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.PaymentTypeSeq:
     """
     list all payment_types
@@ -40,6 +43,7 @@ async def search_payment_types(
         payment_type_in: schema.PaymentTypeRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.PaymentTypeSeq:
     """
     search payment_types
@@ -52,6 +56,7 @@ async def get_payment_type_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.PaymentType]:
     """
     get payment_type by id
@@ -68,6 +73,7 @@ async def get_payment_type_by_name(
         *,
         name: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.PaymentType]:
     """
     get payment_type by name
@@ -83,6 +89,7 @@ async def get_payment_type_by_name(
 async def count_payment_types(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all payment_types
@@ -91,11 +98,12 @@ async def count_payment_types(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.PaymentType)
+@router.put("", status_code=201, response_model=schema.PaymentType)
 async def update_payment_type(
         *,
         payment_type_in: schema.PaymentTypeUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.PaymentType]:
     """
     update existing payment_type
@@ -108,11 +116,12 @@ async def update_payment_type(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.PaymentTypeDict)
+@router.delete("", status_code=200, response_model=schema.PaymentTypeDict)
 async def delete_payment_type(
         *,
         payment_type_in: schema.PaymentTypeDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one payment_type

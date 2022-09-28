@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.audit_log as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.AuditLog)
+@router.post("", status_code=201, response_model=schema.AuditLog)
 async def create_audit_log(
         *,
         audit_log_in: schema.AuditLogCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.AuditLog:
     """
     create a new audit_log
@@ -27,6 +29,7 @@ async def list_audit_logs(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.AuditLogSeq:
     """
     list all audit_logs
@@ -40,6 +43,7 @@ async def search_audit_logs(
         audit_log_in: schema.AuditLogRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.AuditLogSeq:
     """
     search audit_logs
@@ -52,6 +56,7 @@ async def get_audit_log_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.AuditLog]:
     """
     get audit_log by id
@@ -67,6 +72,7 @@ async def get_audit_log_by_id(
 async def count_audit_logs(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all audit_logs
@@ -75,11 +81,12 @@ async def count_audit_logs(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.AuditLog)
+@router.put("", status_code=201, response_model=schema.AuditLog)
 async def update_audit_log(
         *,
         audit_log_in: schema.AuditLogUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.AuditLog]:
     """
     update existing audit_log
@@ -92,11 +99,12 @@ async def update_audit_log(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.AuditLogDict)
+@router.delete("", status_code=200, response_model=schema.AuditLogDict)
 async def delete_audit_log(
         *,
         audit_log_in: schema.AuditLogDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one audit_log

@@ -1,18 +1,20 @@
-from fastapi import APIRouter, Query, HTTPException, Request, Depends
+from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
 from typing import Optional, Dict
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.currency_link as schema
 import qsbi.api.crud as crud
+import qsbi.api.security.deps as auth
 
 router = APIRouter()
 
 ## CREATE
-@router.post("/", status_code=201, response_model=schema.CurrencyLink)
+@router.post("", status_code=201, response_model=schema.CurrencyLink)
 async def create_currency_link(
         *,
         currency_link_in: schema.CurrencyLinkCreate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.CurrencyLink:
     """
     create a new currency_link
@@ -27,6 +29,7 @@ async def list_currency_links(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CurrencyLinkSeq:
     """
     list all currency_links
@@ -40,6 +43,7 @@ async def search_currency_links(
         currency_link_in: schema.CurrencyLinkRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> schema.CurrencyLinkSeq:
     """
     search currency_links
@@ -52,6 +56,7 @@ async def get_currency_link_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.CurrencyLink]:
     """
     get currency_link by id
@@ -67,6 +72,7 @@ async def get_currency_link_by_id(
 async def count_currency_links(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all currency_links
@@ -75,11 +81,12 @@ async def count_currency_links(
     return {"count": count}
 
 ## UPDATE
-@router.put("/", status_code=201, response_model=schema.CurrencyLink)
+@router.put("", status_code=201, response_model=schema.CurrencyLink)
 async def update_currency_link(
         *,
         currency_link_in: schema.CurrencyLinkUpdate,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.CurrencyLink]:
     """
     update existing currency_link
@@ -92,11 +99,12 @@ async def update_currency_link(
     return result
 
 ## DELETE
-@router.delete("/", status_code=200, response_model=schema.CurrencyLinkDict)
+@router.delete("", status_code=200, response_model=schema.CurrencyLinkDict)
 async def delete_currency_link(
         *,
         currency_link_in: schema.CurrencyLinkDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
+        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
 	) -> Optional[Dict]:
     """
     delete one currency_link
