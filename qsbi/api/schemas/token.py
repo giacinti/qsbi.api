@@ -6,8 +6,10 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-class TokenData(BaseModel):
+class UserToken(BaseModel):
     login: Optional[str] = None
-    scopes: List[str] = []
     exp: Union[datetime, timedelta, None]
+    
+class TokenData(UserToken):
+    scopes: List[str] = []
 
