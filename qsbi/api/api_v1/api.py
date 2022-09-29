@@ -14,7 +14,7 @@ from qsbi.api.api_v1.endpoints import reconcile
 from qsbi.api.api_v1.endpoints import scheduled
 from qsbi.api.api_v1.endpoints import sub_category
 from qsbi.api.api_v1.endpoints import transact
-from qsbi.api.api_v1.endpoints import user
+#from qsbi.api.api_v1.endpoints import user - user section moved to admin
 from qsbi.api.api_v1.endpoints import token
 
 qsbi_api_router = APIRouter()
@@ -32,5 +32,5 @@ qsbi_api_router.include_router(reconcile.router, prefix="/reconcile", tags=["Rec
 qsbi_api_router.include_router(scheduled.router, prefix="/scheduled", tags=["Scheduled"])
 qsbi_api_router.include_router(sub_category.router, prefix="/sub_category", tags=["Sub Category"])
 qsbi_api_router.include_router(transact.router, prefix="/transact", tags=["Transaction"])
-qsbi_api_router.include_router(user.router, prefix="/user", tags=["User"])
+#qsbi_api_router.include_router(user.router, prefix="/user", tags=["User"])
 qsbi_api_router.include_router(token.router, prefix="/token", tags=["Token"])

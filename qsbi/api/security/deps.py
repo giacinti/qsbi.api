@@ -14,12 +14,12 @@ from qsbi.api.config import settings as settings
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/token",
-    scopes={"login": "Minimal scope for accessing API",
-            "create": "Create authorization.",
-            "read": "Read authorization.",
-            "update": "Update authorization.",
-            "delete": "Delete authorization.",
-            "admin": "Super user authorization."},
+    # scopes={"login": "Minimal scope for accessing API",
+    #         "create": "Create authorization.",
+    #         "read": "Read authorization.",
+    #         "update": "Update authorization.",
+    #         "delete": "Delete authorization.",
+    #         "admin": "Super user authorization."},
 )
 
 async def get_current_user(
@@ -58,7 +58,8 @@ async def get_current_active_user(
         current_user: user_schema.User = Security(get_current_user, scopes=["login"])
 	) -> Optional[user_schema.User]:
     if not current_user.active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail=f"user account {current_user.login} is deactivated")
     return current_user
 
 

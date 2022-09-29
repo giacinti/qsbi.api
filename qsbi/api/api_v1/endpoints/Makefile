@@ -16,8 +16,8 @@ modules:= account 	\
 	reconcile	\
 	scheduled	\
 	sub_category	\
-	transact	\
-	user
+	transact
+#	user
 
 
 %.py: $(template)

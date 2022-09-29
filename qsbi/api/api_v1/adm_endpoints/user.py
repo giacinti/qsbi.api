@@ -5,6 +5,7 @@ import qsbi.api.schemas.base
 import qsbi.api.schemas.user as schema
 import qsbi.api.crud as crud
 import qsbi.api.security.deps as auth
+import qsbi.api.security.auth as pwd
 
 router = APIRouter()
 
@@ -12,13 +13,14 @@ router = APIRouter()
 @router.post("", status_code=201, response_model=schema.User)
 async def create_user(
         *,
-        user_in: schema.UserCreate,
+        user_in: schema.User,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["create"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> schema.User:
     """
     create a new user
     """
+    user_in.password = pwd.get_password_hash(user_in.password)
     user = await crud.user.create(sess, user_in)
     return user
 
@@ -29,7 +31,7 @@ async def list_users(
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> schema.UserSeq:
     """
     list all users
@@ -43,7 +45,7 @@ async def search_users(
         user_in: schema.UserRead,
         limit: Optional[int] = 100,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> schema.UserSeq:
     """
     search users
@@ -56,7 +58,7 @@ async def get_user_by_id(
         *,
         id: int,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> Optional[schema.User]:
     """
     get user by id
@@ -73,7 +75,7 @@ async def get_user_by_login(
         *,
         login: str,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["read"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> Optional[schema.User]:
     """
     get user by login
@@ -89,7 +91,7 @@ async def get_user_by_login(
 async def count_users(
         *,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["login"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> qsbi.api.schemas.base.CountResult:
     """
     count all users
@@ -101,9 +103,9 @@ async def count_users(
 @router.put("", status_code=201, response_model=schema.User)
 async def update_user(
         *,
-        user_in: schema.UserUpdate,
+        user_in: schema.User,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["update"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
         ) -> Optional[schema.User]:
     """
     update existing user
@@ -121,7 +123,7 @@ async def delete_user(
         *,
         user_in: schema.UserDelete,
         sess: crud.CRUDSession = Depends(crud.get_session),
-        curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
+        curr_user = Security(auth.get_current_active_user, scopes=["admin"]),
 	) -> Optional[Dict]:
     """
     delete one user

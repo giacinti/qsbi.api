@@ -18,7 +18,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 #
 async def get_user(sess: crud.CRUDSession,
                    user_in: user_schema.User,
-                   )-> Optional[user_schema.UserWithPassword]:
+                   )-> Optional[user_schema.User]:
     obj = None
     obj_list = await crud.user.search(sess, user_in, 1)
     try:
@@ -49,10 +49,17 @@ async def authenticate_user(sess: crud.CRUDSession,
 
 ##############################################################################
 # token
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+def create_access_token(data: dict,
+                        expiration: Union[datetime, timedelta, None] = None
+                        ) -> str:
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+    if expiration:
+        if isinstance(expiration, datetime):
+            expire = expiration
+        elif isinstance(expiration, timedelta):
+            expire = datetime.utcnow() + expiration
+        else: # should not be there
+            raise ValueError("wrong data type for expiration")
     else:
         expire = datetime.utcnow() + timedelta(minutes=config.settings.QSBI_JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
@@ -69,5 +76,6 @@ def decode_access_token(token: str) -> Optional[token_schema.TokenData]:
     login: str = payload.get("sub")
     if login is not None:
         token_scopes = payload.get("scopes", [])
-        token_data = token_schema.TokenData(scopes=token_scopes, login=login)
+        exp = datetime.fromtimestamp(payload.get("exp"))
+        token_data = token_schema.TokenData(scopes=token_scopes, login=login, exp=exp)
     return token_data

@@ -21,6 +21,6 @@ async def login_for_access_token(
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token = auth.create_access_token(
-        data={"sub": user.login, "scopes": form_data.scopes},
+        data={"sub": user.login, "scopes": user.scopes},
     )
     return {"access_token": access_token, "token_type": "bearer"}

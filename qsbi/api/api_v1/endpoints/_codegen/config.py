@@ -35,4 +35,4 @@ APIModule("reconcile", "Reconcile", get_by_attrs_id),
 APIModule("scheduled", "Scheduled", get_by_attrs_id),
 APIModule("sub_category", "SubCategory", get_by_attrs_id),
 APIModule("transact", "Transact", get_by_attrs_id),
-APIModule("user", "User", get_by_attrs_id_login),
+#APIModule("user", "User", get_by_attrs_id_login), - user moved to admin
