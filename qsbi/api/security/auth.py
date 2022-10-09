@@ -1,26 +1,25 @@
 # authentication (password & token) and authorization (token scope)
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Any, List, Optional, Union
 from pydantic import ValidationError
 
 from passlib.context import CryptContext
 from jose import jwt
 
-import qsbi.api.schemas.user as user_schema
-import qsbi.api.schemas.token as token_schema
 import qsbi.api.crud as crud
 import qsbi.api.config as config
 
+from qsbi.api.schemas.user import User, UserRead
+from qsbi.api.schemas.token import TokenData
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ##############################################################################
 #
-async def get_user(sess: crud.CRUDSession,
-                   user_in: user_schema.User,
-                   )-> Optional[user_schema.User]:
-    obj = None
-    obj_list = await crud.user.search(sess, user_in, 1)
+async def get_user(user_in: UserRead) -> Optional[User]:
+    obj: Optional[User] = None
+    obj_list: List[User] = await crud.user.search(user_in, 1)  # type: ignore
     try:
         obj = obj_list[0]
     except IndexError:
@@ -30,21 +29,25 @@ async def get_user(sess: crud.CRUDSession,
 
 ##############################################################################
 # password
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+def get_password_hash(password: Optional[str]) -> Optional[str]:
+    hash = None
+    if password:
+        hash = pwd_context.hash(password)
+    return hash
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
+    if not hashed_password:
+        return False
     return pwd_context.verify(plain_password, hashed_password)
 
-async def authenticate_user(sess: crud.CRUDSession,
-                            user_in: user_schema.User,
+async def authenticate_user(user_in: UserRead,
                             password: str,
-                            ) -> Union[bool,user_schema.User]:
-    user = await get_user(sess, user_in)
+                            ) -> Optional[User]:
+    user: Optional[User] = await get_user(user_in)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.password):
-        return False
+        return None
     return user
 
 ##############################################################################
@@ -52,10 +55,10 @@ async def authenticate_user(sess: crud.CRUDSession,
 def create_access_token(data: dict,
                         expiration: Union[datetime, timedelta, None] = None
                         ) -> str:
-    to_encode = data.copy()
+    to_encode: dict = data.copy()
     if expiration:
         if isinstance(expiration, datetime):
-            expire = expiration
+            expire: datetime = expiration
         elif isinstance(expiration, timedelta):
             expire = datetime.utcnow() + expiration
         else: # should not be there
@@ -63,19 +66,19 @@ def create_access_token(data: dict,
     else:
         expire = datetime.utcnow() + timedelta(minutes=config.settings.QSBI_JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode,
-                             config.settings.QSBI_JWT_SECRET_KEY,
+    encoded_jwt: str = jwt.encode(to_encode,
+                             config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
                              algorithm=config.settings.QSBI_JWT_ALGORITHM)
     return encoded_jwt
 
-def decode_access_token(token: str) -> Optional[token_schema.TokenData]:
-    token_data = None
-    payload = jwt.decode(token,
-                         config.settings.QSBI_JWT_SECRET_KEY,
-                         algorithms=[config.settings.QSBI_JWT_ALGORITHM])
-    login: str = payload.get("sub")
+def decode_access_token(token: str) -> Optional[TokenData]:
+    token_data: Optional[TokenData] = None
+    payload: dict[str, Any] = jwt.decode(token,
+                        config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
+                        algorithms=[config.settings.QSBI_JWT_ALGORITHM])
+    login: Optional[str] = payload.get("sub")
     if login is not None:
-        token_scopes = payload.get("scopes", [])
-        exp = datetime.fromtimestamp(payload.get("exp"))
-        token_data = token_schema.TokenData(scopes=token_scopes, login=login, exp=exp)
+        token_scopes: List = payload.get("scopes", [])
+        exp: datetime = datetime.fromtimestamp(payload.get("exp", 0))
+        token_data = TokenData(scopes=token_scopes, login=login, exp=exp)
     return token_data

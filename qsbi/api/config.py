@@ -1,10 +1,10 @@
 import pathlib
 from pydantic import BaseSettings, AnyHttpUrl, validator
-from typing import Union, List
+from typing import Optional, Union, List
 
 
 # Project Directories
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     ##############################################################################
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     ##############################################################################
-    QSBI_JWT_SECRET_KEY: str = None
+    QSBI_JWT_SECRET_KEY: Optional[str] = None
     @validator("QSBI_JWT_SECRET_KEY", pre=True)
     def check_jwt_secret_key(cls, v: str) -> str:
         if v is not None:
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
 
     ##############################################################################
     class Config:
-        case_sensitive = True
+        case_sensitive: bool = True
 
 
-settings = Settings()
+settings: Settings = Settings()

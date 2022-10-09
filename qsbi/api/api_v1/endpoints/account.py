@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
-from typing import Optional, Dict
+from typing import Optional, List
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.account as schema
@@ -13,55 +13,51 @@ router = APIRouter()
 async def create_account(
         *,
         account_in: schema.AccountCreate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Account:
     """
     create a new account
     """
-    account = await crud.account.create(sess, account_in)
+    account: schema.Account  = await crud.account.create(account_in)
     return account
 
 ## READ
-@router.get("/list", status_code=200, response_model=schema.AccountSeq)
+@router.get("/list", status_code=200, response_model=List[schema.Account])
 async def list_accounts(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.AccountSeq:
+        ) -> List[schema.Account]:
     """
     list all accounts
     """
-    accounts = await crud.account.list(sess, skip, limit)
-    return {"results": accounts}
+    accounts: List[schema.Account] = await crud.account.list(skip, limit)
+    return accounts
 
-@router.post("/search", status_code=200, response_model=schema.AccountSeq)
+@router.post("/search", status_code=200, response_model=List[schema.Account])
 async def search_accounts(
         *,
-        account_in: schema.AccountRead,
+        account_in: schema.Account,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.AccountSeq:
+        ) -> List[schema.Account]:
     """
     search accounts
     """
-    accounts = await crud.account.search(sess, account_in, limit)
-    return {"results": accounts}
+    accounts: List[schema.Account] = await crud.account.search(account_in, limit)
+    return accounts
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Account)
 async def get_account_by_id(
         *,
         id: int,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Account]:
     """
     get account by id
     """
-    result = await crud.account.get_by(sess, 'id', id)
+    result: Optional[schema.Account] = await crud.account.get_by('id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Account with id {id} not found"
@@ -72,43 +68,40 @@ async def get_account_by_id(
 async def get_account_by_name(
         *,
         name: str,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Account]:
     """
     get account by name
     """
-    result = await crud.account.get_by(sess, 'name', name)
+    result: Optional[schema.Account] = await crud.account.get_by('name', name)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Account with name {name} not found"
         )
     return result
   
-@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+@router.get("/count", status_code=200, response_model=int)
 async def count_accounts(
         *,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["login"]),
-        ) -> qsbi.api.schemas.base.CountResult:
+        ) -> int:
     """
     count all accounts
     """
-    count = await crud.account.count(sess)
-    return {"count": count}
+    count: int = await crud.account.count()
+    return count
 
 ## UPDATE
 @router.put("", status_code=201, response_model=schema.Account)
 async def update_account(
         *,
         account_in: schema.AccountUpdate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Account]:
     """
     update existing account
     """
-    result = await crud.account.update(sess, account_in)
+    result: Optional[schema.Account] = await crud.account.update(account_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Account {account_in} not found"
@@ -116,17 +109,16 @@ async def update_account(
     return result
 
 ## DELETE
-@router.delete("", status_code=200, response_model=schema.AccountDict)
+@router.delete("", status_code=200, response_model=schema.Account)
 async def delete_account(
         *,
         account_in: schema.AccountDelete,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
-	) -> Optional[Dict]:
+	) -> Optional[schema.Account]:
     """
     delete one account
     """
-    result = await crud.account.delete(sess, account_in)
+    result: Optional[schema.Account] = await crud.account.delete(account_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Account {account_in} not found"

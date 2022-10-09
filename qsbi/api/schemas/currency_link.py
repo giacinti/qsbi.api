@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 from pydantic import BaseModel,root_validator
 
-from .base import BaseQsbi, BaseAny, BaseId, check_one_non_null, check_all_non_null
-from .currency import Currency
-from .audit_log import AuditLog
+from .base import BaseQsbi, BaseAny, BaseId, check_all_non_null
 
 class CurrencyLink(BaseQsbi):
     id : Optional[int]
@@ -14,29 +12,18 @@ class CurrencyLink(BaseQsbi):
     date : Optional[datetime]
     log_id :  Optional[int]
 
-class CurrencyLinkDict(BaseModel):
-    id : Optional[int]
-    cur1_id : Optional[int]
-    cur2_id : Optional[int]
-    rate : Optional[float]
-    date : Optional[datetime]
-    log_id :  Optional[int]
-
 class CurrencyLinkCreate(CurrencyLink):
     @root_validator
-    def CurrencyLinkCreate_validate(cls, values):
+    def CurrencyLinkCreate_validate(cls, values) -> Any:
         return check_all_non_null(values,'cur1','cur2','log')
 
-class CurrencyLinkRead(CurrencyLink,BaseAny):
-    pass
+class CurrencyLinkRead(BaseAny):
+    id : int
 
 class CurrencyLinkUpdate(CurrencyLink,BaseId):
     pass
 
-class CurrencyLinkDelete(BaseId):
-    id : Optional[int]
-    
-class CurrencyLinkSeq(BaseModel):
-    results: Sequence[CurrencyLink]
+class CurrencyLinkDelete(CurrencyLinkRead):
+    pass
 
 

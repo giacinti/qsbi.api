@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
-from typing import Optional, Dict
+from typing import Optional, List
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.sub_category as schema
@@ -13,85 +13,79 @@ router = APIRouter()
 async def create_sub_category(
         *,
         sub_category_in: schema.SubCategoryCreate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.SubCategory:
     """
     create a new sub_category
     """
-    sub_category = await crud.sub_category.create(sess, sub_category_in)
+    sub_category: schema.SubCategory  = await crud.sub_category.create(sub_category_in)
     return sub_category
 
 ## READ
-@router.get("/list", status_code=200, response_model=schema.SubCategorySeq)
+@router.get("/list", status_code=200, response_model=List[schema.SubCategory])
 async def list_sub_categorys(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.SubCategorySeq:
+        ) -> List[schema.SubCategory]:
     """
     list all sub_categorys
     """
-    sub_categorys = await crud.sub_category.list(sess, skip, limit)
-    return {"results": sub_categorys}
+    sub_categorys: List[schema.SubCategory] = await crud.sub_category.list(skip, limit)
+    return sub_categorys
 
-@router.post("/search", status_code=200, response_model=schema.SubCategorySeq)
+@router.post("/search", status_code=200, response_model=List[schema.SubCategory])
 async def search_sub_categorys(
         *,
-        sub_category_in: schema.SubCategoryRead,
+        sub_category_in: schema.SubCategory,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.SubCategorySeq:
+        ) -> List[schema.SubCategory]:
     """
     search sub_categorys
     """
-    sub_categorys = await crud.sub_category.search(sess, sub_category_in, limit)
-    return {"results": sub_categorys}
+    sub_categorys: List[schema.SubCategory] = await crud.sub_category.search(sub_category_in, limit)
+    return sub_categorys
 
 @router.get("/id/{id}", status_code=200, response_model=schema.SubCategory)
 async def get_sub_category_by_id(
         *,
         id: int,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.SubCategory]:
     """
     get sub_category by id
     """
-    result = await crud.sub_category.get_by(sess, 'id', id)
+    result: Optional[schema.SubCategory] = await crud.sub_category.get_by('id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"SubCategory with id {id} not found"
         )
     return result
   
-@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+@router.get("/count", status_code=200, response_model=int)
 async def count_sub_categorys(
         *,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["login"]),
-        ) -> qsbi.api.schemas.base.CountResult:
+        ) -> int:
     """
     count all sub_categorys
     """
-    count = await crud.sub_category.count(sess)
-    return {"count": count}
+    count: int = await crud.sub_category.count()
+    return count
 
 ## UPDATE
 @router.put("", status_code=201, response_model=schema.SubCategory)
 async def update_sub_category(
         *,
         sub_category_in: schema.SubCategoryUpdate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.SubCategory]:
     """
     update existing sub_category
     """
-    result = await crud.sub_category.update(sess, sub_category_in)
+    result: Optional[schema.SubCategory] = await crud.sub_category.update(sub_category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"SubCategory {sub_category_in} not found"
@@ -99,17 +93,16 @@ async def update_sub_category(
     return result
 
 ## DELETE
-@router.delete("", status_code=200, response_model=schema.SubCategoryDict)
+@router.delete("", status_code=200, response_model=schema.SubCategory)
 async def delete_sub_category(
         *,
         sub_category_in: schema.SubCategoryDelete,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
-	) -> Optional[Dict]:
+	) -> Optional[schema.SubCategory]:
     """
     delete one sub_category
     """
-    result = await crud.sub_category.delete(sess, sub_category_in)
+    result: Optional[schema.SubCategory] = await crud.sub_category.delete(sub_category_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"SubCategory {sub_category_in} not found"

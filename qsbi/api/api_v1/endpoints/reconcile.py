@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
-from typing import Optional, Dict
+from typing import Optional, List
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.reconcile as schema
@@ -13,85 +13,79 @@ router = APIRouter()
 async def create_reconcile(
         *,
         reconcile_in: schema.ReconcileCreate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Reconcile:
     """
     create a new reconcile
     """
-    reconcile = await crud.reconcile.create(sess, reconcile_in)
+    reconcile: schema.Reconcile  = await crud.reconcile.create(reconcile_in)
     return reconcile
 
 ## READ
-@router.get("/list", status_code=200, response_model=schema.ReconcileSeq)
+@router.get("/list", status_code=200, response_model=List[schema.Reconcile])
 async def list_reconciles(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.ReconcileSeq:
+        ) -> List[schema.Reconcile]:
     """
     list all reconciles
     """
-    reconciles = await crud.reconcile.list(sess, skip, limit)
-    return {"results": reconciles}
+    reconciles: List[schema.Reconcile] = await crud.reconcile.list(skip, limit)
+    return reconciles
 
-@router.post("/search", status_code=200, response_model=schema.ReconcileSeq)
+@router.post("/search", status_code=200, response_model=List[schema.Reconcile])
 async def search_reconciles(
         *,
-        reconcile_in: schema.ReconcileRead,
+        reconcile_in: schema.Reconcile,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.ReconcileSeq:
+        ) -> List[schema.Reconcile]:
     """
     search reconciles
     """
-    reconciles = await crud.reconcile.search(sess, reconcile_in, limit)
-    return {"results": reconciles}
+    reconciles: List[schema.Reconcile] = await crud.reconcile.search(reconcile_in, limit)
+    return reconciles
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Reconcile)
 async def get_reconcile_by_id(
         *,
         id: int,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Reconcile]:
     """
     get reconcile by id
     """
-    result = await crud.reconcile.get_by(sess, 'id', id)
+    result: Optional[schema.Reconcile] = await crud.reconcile.get_by('id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Reconcile with id {id} not found"
         )
     return result
   
-@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+@router.get("/count", status_code=200, response_model=int)
 async def count_reconciles(
         *,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["login"]),
-        ) -> qsbi.api.schemas.base.CountResult:
+        ) -> int:
     """
     count all reconciles
     """
-    count = await crud.reconcile.count(sess)
-    return {"count": count}
+    count: int = await crud.reconcile.count()
+    return count
 
 ## UPDATE
 @router.put("", status_code=201, response_model=schema.Reconcile)
 async def update_reconcile(
         *,
         reconcile_in: schema.ReconcileUpdate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Reconcile]:
     """
     update existing reconcile
     """
-    result = await crud.reconcile.update(sess, reconcile_in)
+    result: Optional[schema.Reconcile] = await crud.reconcile.update(reconcile_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Reconcile {reconcile_in} not found"
@@ -99,17 +93,16 @@ async def update_reconcile(
     return result
 
 ## DELETE
-@router.delete("", status_code=200, response_model=schema.ReconcileDict)
+@router.delete("", status_code=200, response_model=schema.Reconcile)
 async def delete_reconcile(
         *,
         reconcile_in: schema.ReconcileDelete,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
-	) -> Optional[Dict]:
+	) -> Optional[schema.Reconcile]:
     """
     delete one reconcile
     """
-    result = await crud.reconcile.delete(sess, reconcile_in)
+    result: Optional[schema.Reconcile] = await crud.reconcile.delete(reconcile_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Reconcile {reconcile_in} not found"

@@ -1,7 +1,8 @@
+from typing import Any
 from pydantic import BaseModel, root_validator
 
 # convenient functions
-def is_null(v):
+def is_null(v) -> bool:  # type: ignore
     """ v is None or for a list or a tuple, at least one element is null 
 Eg: ('a','b') is not null, ('a',None) is null
     ('a',('b','c')) is not null, ('a',('b',None)) is null """
@@ -12,7 +13,7 @@ Eg: ('a','b') is not null, ('a',None) is null
     else:
         return v is None
     
-def mapget(dic,key):
+def mapget(dic,key) -> Any:
     # special case for strings
     if isinstance(key,str):
         return dic.get(key)
@@ -22,7 +23,7 @@ def mapget(dic,key):
         return dic.get(key)
 
 # custom validators
-def check_all_non_null(values,*fields):
+def check_all_non_null(values,*fields)-> Any:
     if not fields:
         fields=list(values.keys())
     for f in fields:
@@ -30,7 +31,7 @@ def check_all_non_null(values,*fields):
             raise ValueError(f"field {f} cannot be null")
     return values
 
-def check_one_non_null(values,*fields):
+def check_one_non_null(values,*fields) -> Any:
     if not fields:
         fields=list(values.keys())
     if all(map(lambda x: is_null(mapget(values,x)),fields)):
@@ -48,30 +49,22 @@ class BaseQsbi(BaseORM):
 
 class BaseAny(BaseQsbi):
     @root_validator
-    def BaseAny_validate(cls, values):
+    def BaseAny_validate(cls, values) -> Any:
         return check_one_non_null(values)
 
 class BaseId(BaseQsbi):
     @root_validator
-    def BaseGet_validate(cls, values):
+    def BaseId_validate(cls, values) -> Any:
         return check_all_non_null(values,'id')
     
 class BaseIdOrName(BaseQsbi):
     @root_validator
-    def BaseIdOrName_validate(cls, values):
+    def BaseIdOrName_validate(cls, values) -> Any:
         return check_one_non_null(values,'id','name')
 
-class BaseGet(BaseIdOrName):
-    pass
 
 class BaseIdOrAccount(BaseQsbi):
     @root_validator
-    def BaseIdOrAccount_validate(cls, values):
+    def BaseIdOrAccount_validate(cls, values) -> Any:
         return check_one_non_null(values,'id',('name','account'))
 
-class BaseWithAccount(BaseIdOrAccount):
-    pass
-
-# common class - count result
-class CountResult(BaseModel):
-    count: int

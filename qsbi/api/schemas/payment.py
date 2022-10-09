@@ -1,4 +1,4 @@
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 from pydantic import BaseModel, root_validator
 
 from .base import BaseQsbi, BaseAny, BaseIdOrAccount, BaseId, check_one_non_null, check_all_non_null
@@ -12,27 +12,16 @@ class Payment(BaseQsbi):
     current: Optional[int]
     type_id: Optional[int]
 
-class PaymentDict(BaseModel):
-    id: Optional[int]
-    name: Optional[str]
-    account_id: Optional[int]
-    current: Optional[int]
-    type_id: Optional[int]
-
 class PaymentCreate(Payment):
     @root_validator
-    def PaymentCreate_validate(cls, values):
+    def PaymentCreate_validate(cls, values) -> Any:
         return check_all_non_null(values,'name','account')
 
-class PaymentRead(Payment,BaseAny):
-    pass
+class PaymentRead(BaseAny):
+    id: int
 
 class PaymentUpdate(Payment,BaseIdOrAccount):
     pass
 
-class PaymentDelete(BaseId):
-    id: Optional[int]
-
-class PaymentSeq(BaseModel):
-    results: Sequence[Payment]
-
+class PaymentDelete(PaymentRead):
+    pass

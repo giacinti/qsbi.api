@@ -1,30 +1,23 @@
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseQsbi, BaseAny, BaseIdOrName, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrName, check_all_non_null
 
 class CategoryType(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
 
-class CategoryTypeDict(BaseModel):
-    id: Optional[int]
-    name: Optional[str]
-
 class CategoryTypeCreate(CategoryType):
     @root_validator
-    def CategoryTypeCreate_validate(cls, values):
+    def CategoryTypeCreate_validate(cls, values) -> Any:
         return check_all_non_null(values,'name')
 
-class CategoryTypeRead(CategoryType,BaseAny):
-    pass
+class CategoryTypeRead(BaseAny):
+    id: Optional[int]
+    name: Optional[str]
 
 class CategoryTypeUpdate(CategoryType,BaseIdOrName):
     pass
 
-class CategoryTypeDelete(BaseIdOrName):
-    id: Optional[int]
-    name: Optional[str]
-
-class CategoryTypeSeq(BaseModel):
-    results: Sequence[CategoryType]
+class CategoryTypeDelete(CategoryTypeRead):
+    pass

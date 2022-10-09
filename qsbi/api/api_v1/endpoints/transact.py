@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
-from typing import Optional, Dict
+from typing import Optional, List
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.transact as schema
@@ -13,85 +13,79 @@ router = APIRouter()
 async def create_transact(
         *,
         transact_in: schema.TransactCreate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.Transact:
     """
     create a new transact
     """
-    transact = await crud.transact.create(sess, transact_in)
+    transact: schema.Transact  = await crud.transact.create(transact_in)
     return transact
 
 ## READ
-@router.get("/list", status_code=200, response_model=schema.TransactSeq)
+@router.get("/list", status_code=200, response_model=List[schema.Transact])
 async def list_transacts(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.TransactSeq:
+        ) -> List[schema.Transact]:
     """
     list all transacts
     """
-    transacts = await crud.transact.list(sess, skip, limit)
-    return {"results": transacts}
+    transacts: List[schema.Transact] = await crud.transact.list(skip, limit)
+    return transacts
 
-@router.post("/search", status_code=200, response_model=schema.TransactSeq)
+@router.post("/search", status_code=200, response_model=List[schema.Transact])
 async def search_transacts(
         *,
-        transact_in: schema.TransactRead,
+        transact_in: schema.Transact,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.TransactSeq:
+        ) -> List[schema.Transact]:
     """
     search transacts
     """
-    transacts = await crud.transact.search(sess, transact_in, limit)
-    return {"results": transacts}
+    transacts: List[schema.Transact] = await crud.transact.search(transact_in, limit)
+    return transacts
 
 @router.get("/id/{id}", status_code=200, response_model=schema.Transact)
 async def get_transact_by_id(
         *,
         id: int,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.Transact]:
     """
     get transact by id
     """
-    result = await crud.transact.get_by(sess, 'id', id)
+    result: Optional[schema.Transact] = await crud.transact.get_by('id', id)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact with id {id} not found"
         )
     return result
   
-@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+@router.get("/count", status_code=200, response_model=int)
 async def count_transacts(
         *,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["login"]),
-        ) -> qsbi.api.schemas.base.CountResult:
+        ) -> int:
     """
     count all transacts
     """
-    count = await crud.transact.count(sess)
-    return {"count": count}
+    count: int = await crud.transact.count()
+    return count
 
 ## UPDATE
 @router.put("", status_code=201, response_model=schema.Transact)
 async def update_transact(
         *,
         transact_in: schema.TransactUpdate,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.Transact]:
     """
     update existing transact
     """
-    result = await crud.transact.update(sess, transact_in)
+    result: Optional[schema.Transact] = await crud.transact.update(transact_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact {transact_in} not found"
@@ -99,17 +93,16 @@ async def update_transact(
     return result
 
 ## DELETE
-@router.delete("", status_code=200, response_model=schema.TransactDict)
+@router.delete("", status_code=200, response_model=schema.Transact)
 async def delete_transact(
         *,
         transact_in: schema.TransactDelete,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
-	) -> Optional[Dict]:
+	) -> Optional[schema.Transact]:
     """
     delete one transact
     """
-    result = await crud.transact.delete(sess, transact_in)
+    result: Optional[schema.Transact] = await crud.transact.delete(transact_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Transact {transact_in} not found"

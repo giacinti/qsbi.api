@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query, HTTPException, Request, Depends, Security
-from typing import Optional, Dict
+from typing import Optional, List
 
 import qsbi.api.schemas.base
 import qsbi.api.schemas.{{ module }} as schema
@@ -13,56 +13,52 @@ router = APIRouter()
 async def create_{{ module }}(
         *,
         {{ module }}_in: schema.{{ classname }}Create,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["create"]),
         ) -> schema.{{ classname }}:
     """
     create a new {{ module }}
     """
-    {{ module }} = await crud.{{ module }}.create(sess, {{ module }}_in)
+    {{ module }}: schema.{{ classname }}  = await crud.{{ module }}.create({{ module }}_in)
     return {{ module }}
 
 ## READ
-@router.get("/list", status_code=200, response_model=schema.{{ classname }}Seq)
+@router.get("/list", status_code=200, response_model=List[schema.{{ classname }}])
 async def list_{{ module }}s(
         *,
         skip: Optional[int] = 0,
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.{{ classname }}Seq:
+        ) -> List[schema.{{ classname }}]:
     """
     list all {{ module }}s
     """
-    {{ module }}s = await crud.{{ module }}.list(sess, skip, limit)
-    return {"results": {{ module }}s}
+    {{ module }}s: List[schema.{{ classname }}] = await crud.{{ module }}.list(skip, limit)
+    return {{ module }}s
 
-@router.post("/search", status_code=200, response_model=schema.{{ classname }}Seq)
+@router.post("/search", status_code=200, response_model=List[schema.{{ classname }}])
 async def search_{{ module }}s(
         *,
-        {{ module }}_in: schema.{{ classname }}Read,
+        {{ module }}_in: schema.{{ classname }},
         limit: Optional[int] = 100,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
-        ) -> schema.{{ classname }}Seq:
+        ) -> List[schema.{{ classname }}]:
     """
     search {{ module }}s
     """
-    {{ module }}s = await crud.{{ module }}.search(sess, {{ module }}_in, limit)
-    return {"results": {{ module }}s}
+    {{ module }}s: List[schema.{{ classname }}] = await crud.{{ module }}.search({{ module }}_in, limit)
+    return {{ module }}s
 
 {% for attr in get_by_attrs -%}
 @router.get("/{{ attr.name }}/{{'{'}}{{ attr.name }}{{'}'}}", status_code=200, response_model=schema.{{ classname }})
 async def get_{{ module }}_by_{{ attr.name }}(
         *,
         {{ attr.name }}: {{ attr.type }},
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["read"]),
         ) -> Optional[schema.{{ classname }}]:
     """
     get {{ module }} by {{ attr.name }}
     """
-    result = await crud.{{ module }}.get_by(sess, '{{ attr.name }}', {{ attr.name }})
+    result: Optional[schema.{{ classname }}] = await crud.{{ module }}.get_by('{{ attr.name }}', {{ attr.name }})
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} with {{ attr.name }} {{'{'}}{{ attr.name }}{{'}'}} not found"
@@ -71,30 +67,28 @@ async def get_{{ module }}_by_{{ attr.name }}(
   
 {% endfor -%}
 
-@router.get("/count", status_code=200, response_model=qsbi.api.schemas.base.CountResult)
+@router.get("/count", status_code=200, response_model=int)
 async def count_{{ module }}s(
         *,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["login"]),
-        ) -> qsbi.api.schemas.base.CountResult:
+        ) -> int:
     """
     count all {{ module }}s
     """
-    count = await crud.{{ module }}.count(sess)
-    return {"count": count}
+    count: int = await crud.{{ module }}.count()
+    return count
 
 ## UPDATE
 @router.put("", status_code=201, response_model=schema.{{ classname }})
 async def update_{{ module }}(
         *,
         {{ module }}_in: schema.{{ classname }}Update,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["update"]),
         ) -> Optional[schema.{{ classname }}]:
     """
     update existing {{ module }}
     """
-    result = await crud.{{ module }}.update(sess, {{ module }}_in)
+    result: Optional[schema.{{ classname }}] = await crud.{{ module }}.update({{ module }}_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} {{'{'}}{{ module }}_in{{'}'}} not found"
@@ -102,17 +96,16 @@ async def update_{{ module }}(
     return result
 
 ## DELETE
-@router.delete("", status_code=200, response_model=schema.{{ classname }}Dict)
+@router.delete("", status_code=200, response_model=schema.{{ classname }})
 async def delete_{{ module }}(
         *,
         {{ module }}_in: schema.{{ classname }}Delete,
-        sess: crud.CRUDSession = Depends(crud.get_session),
         curr_user = Security(auth.get_current_active_user, scopes=["delete"]),
-	) -> Optional[Dict]:
+	) -> Optional[schema.{{ classname }}]:
     """
     delete one {{ module }}
     """
-    result = await crud.{{ module }}.delete(sess, {{ module }}_in)
+    result: Optional[schema.{{ classname }}] = await crud.{{ module }}.delete({{ module }}_in)
     if not result:
         raise HTTPException(
             status_code=404, detail=f"{{ classname }} {{'{'}}{{ module }}_in{{'}'}} not found"

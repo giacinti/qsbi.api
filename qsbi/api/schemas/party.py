@@ -1,33 +1,25 @@
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 from pydantic import BaseModel, root_validator
 
-from .base import BaseQsbi, BaseAny, BaseIdOrName, check_one_non_null, check_all_non_null
+from .base import BaseQsbi, BaseAny, BaseIdOrName, check_all_non_null
 
 class Party(BaseQsbi):
     id: Optional[int]
     name: Optional[str]
     desc: Optional[str]
 
-class PartyDict(BaseModel):
-    id: Optional[int]
-    name: Optional[str]
-    desc: Optional[str]
-
 class PartyCreate(Party):
     @root_validator
-    def PartyCreate_validate(cls, values):
+    def PartyCreate_validate(cls, values) -> Any:
         return check_all_non_null(values,'name')
 
-class PartyRead(Party,BaseAny):
-    pass
+class PartyRead(BaseAny):
+    id: Optional[int]
+    name: Optional[str]
 
 class PartyUpdate(Party,BaseIdOrName):
     pass
 
-class PartyDelete(BaseIdOrName):
-    id: Optional[int]
-    name: Optional[str]
-        
-class PartySeq(BaseModel):
-    results: Sequence[Party]
+class PartyDelete(PartyRead):
+    pass
 

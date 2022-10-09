@@ -5,8 +5,8 @@ from qsbi.api.api_v1.api import qsbi_api_router
 from qsbi.api.api_v1.admin import qsbi_admin_router
 
 
-qsbi_api = FastAPI(title="QSBI API",
-                   description="QSBI is not Qu\*ck\*n nor Gr\*sb\*",
+qsbi_api: FastAPI = FastAPI(title="QSBI API",
+                   description="QSBI is not Qu\\*ck\\*n nor Gr\\*sb\\*",
                    version="1.0",
                    contact={
                        "name": "Philippe Giacinti",
@@ -19,7 +19,7 @@ qsbi_api.include_router(qsbi_api_router, prefix=settings.API_V1_STR)
 
 
 # admin sub system
-qsbi_api_admin = FastAPI(title="QSBI ADMIN API",
+qsbi_api_admin: FastAPI = FastAPI(title="QSBI ADMIN API",
                    description="admin restricted API commands",
                    version="1.0",
                    contact={
