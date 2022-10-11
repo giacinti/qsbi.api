@@ -1,3 +1,4 @@
+# flake8: noqa: F401
 from .currency import Currency, CurrencyCreate, CurrencyRead, CurrencyUpdate, CurrencyDelete
 from .currency_link import CurrencyLink, CurrencyLinkCreate, CurrencyLinkRead, CurrencyLinkUpdate, CurrencyLinkDelete
 from .bank import Bank, BankCreate, BankRead, BankUpdate, BankDelete

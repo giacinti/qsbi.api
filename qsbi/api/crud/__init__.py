@@ -1,3 +1,4 @@
+# flake8: noqa: F401
 from .crud import account
 from .crud import account_type
 from .crud import audit_log

@@ -9,11 +9,13 @@ import qsbi.api.schemas.user as user_schema
 
 
 router = APIRouter()
+
+
 @router.post("", response_model=schema.Token)
 async def login_for_access_token(
         *,
         form_data: OAuth2PasswordRequestForm = Depends(),
-	) -> dict:
+        ) -> dict:
     user_in: user_schema.UserRead = user_schema.UserRead(login=form_data.username)  # type: ignore
     user: Optional[user_schema.User] = await auth.authenticate_user(user_in, form_data.password)
     if not user:

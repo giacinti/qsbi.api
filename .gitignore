@@ -131,6 +131,9 @@ dmypy.json
 # emacs backup
 *~
 
+# vscode
+.vscode/
+
 # qisbi
 *.qdb
 *.gsb

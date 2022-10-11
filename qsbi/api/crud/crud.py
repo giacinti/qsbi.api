@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
+
 class QsbiCRUD(ABC):
     @abstractmethod
     async def get_by(self, attr: str, val: Any) -> Any:
         pass
 
     @abstractmethod
-    async def list(self, skip: Optional[int]=0, limit: Optional[int]=100) -> List:
+    async def list(self, skip: Optional[int] = 0, limit: Optional[int] = 100) -> List:
         pass
 
     @abstractmethod
@@ -15,7 +16,7 @@ class QsbiCRUD(ABC):
         pass
 
     @abstractmethod
-    async def search(self, obj_in: Any, limit: Optional[int]=100) -> List:
+    async def search(self, obj_in: Any, limit: Optional[int] = 100) -> List:
         pass
 
     @abstractmethod
@@ -29,6 +30,7 @@ class QsbiCRUD(ABC):
     @abstractmethod
     async def count(self) -> int:
         pass
+
 
 account: QsbiCRUD = None  # type: ignore
 account_type: QsbiCRUD = None  # type: ignore
@@ -45,4 +47,3 @@ scheduled: QsbiCRUD = None  # type: ignore
 sub_category: QsbiCRUD = None  # type: ignore
 transact: QsbiCRUD = None  # type: ignore
 user: QsbiCRUD = None  # type: ignore
-

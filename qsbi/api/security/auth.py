@@ -1,7 +1,6 @@
 # authentication (password & token) and authorization (token scope)
 from datetime import datetime, timedelta
 from typing import Any, List, Optional, Union
-from pydantic import ValidationError
 
 from passlib.context import CryptContext
 from jose import jwt
@@ -15,8 +14,7 @@ from qsbi.api.schemas.token import TokenData
 
 pwd_context: CryptContext = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-##############################################################################
-#
+
 async def get_user(user_in: UserRead) -> Optional[User]:
     obj: Optional[User] = None
     obj_list: List[User] = await crud.user.search(user_in, 1)  # type: ignore
@@ -27,18 +25,18 @@ async def get_user(user_in: UserRead) -> Optional[User]:
     return obj
 
 
-##############################################################################
-# password
 def get_password_hash(password: Optional[str]) -> Optional[str]:
     hash = None
     if password:
         hash = pwd_context.hash(password)
     return hash
 
+
 def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
     if not hashed_password:
         return False
     return pwd_context.verify(plain_password, hashed_password)
+
 
 async def authenticate_user(user_in: UserRead,
                             password: str,
@@ -50,8 +48,7 @@ async def authenticate_user(user_in: UserRead,
         return None
     return user
 
-##############################################################################
-# token
+
 def create_access_token(data: dict,
                         expiration: Union[datetime, timedelta, None] = None
                         ) -> str:
@@ -61,21 +58,22 @@ def create_access_token(data: dict,
             expire: datetime = expiration
         elif isinstance(expiration, timedelta):
             expire = datetime.utcnow() + expiration
-        else: # should not be there
+        else:  # should not be there
             raise ValueError("wrong data type for expiration")
     else:
         expire = datetime.utcnow() + timedelta(minutes=config.settings.QSBI_JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt: str = jwt.encode(to_encode,
-                             config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
-                             algorithm=config.settings.QSBI_JWT_ALGORITHM)
+                                  config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
+                                  algorithm=config.settings.QSBI_JWT_ALGORITHM)
     return encoded_jwt
+
 
 def decode_access_token(token: str) -> Optional[TokenData]:
     token_data: Optional[TokenData] = None
     payload: dict[str, Any] = jwt.decode(token,
-                        config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
-                        algorithms=[config.settings.QSBI_JWT_ALGORITHM])
+                                         config.settings.QSBI_JWT_SECRET_KEY,  # type: ignore
+                                         algorithms=[config.settings.QSBI_JWT_ALGORITHM])
     login: Optional[str] = payload.get("sub")
     if login is not None:
         token_scopes: List = payload.get("scopes", [])
